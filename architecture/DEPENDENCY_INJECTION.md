@@ -2,19 +2,20 @@
 
 **Load when:** writing bindings or installers, or getting a reference.
 
-A MonoBehaviour never creates or looks up its own dependencies: something assigns them. That rule is mandatory. The mechanism depends on the project:
+The way a View or Controller gets a Model depends on the project. In every case, it MUST NOT use a static singleton or a service locator.
 
 | Capability | Mechanism |
 |---|---|
 | `fastIoC` | Injected `internal` fields. The rest of this document applies |
 | `otherContainer` | That container's injection |
-| Neither | [Composition root](OPTIONAL_PACKAGES.md#composition-root) |
+| Neither | [Model in the scene or prefab](OPTIONAL_PACKAGES.md#model-in-the-scene-or-prefab), found with `GetComponentInParent` |
 
 ## Reference acquisition
 
 | Class | How |
 |---|---|
-| MonoBehaviour | `internal` field |
+| MonoBehaviour, with a container | `internal` field |
+| MonoBehaviour, without a container | `GetComponentInParent<TModel>()`, cached once |
 | Pure C# class | Constructor |
 | Inside a list cell | `GetComponentInParent<TCellModel>()`, cached once |
 

@@ -123,7 +123,7 @@ public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 
 | | How |
 |---|---|
-| MonoBehaviour | `internal` field. Fast IoC or a composition root assigns it |
+| MonoBehaviour | With Fast IoC, an injected `internal` field. Without a container, the Model lives in the scene or prefab: use `GetComponentInParent`, cached once |
 | Pure C# class | Constructor |
 | Inside a list cell | `GetComponentInParent<CellModel>()`, cached once |
 
