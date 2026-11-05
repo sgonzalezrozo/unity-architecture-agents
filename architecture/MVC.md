@@ -31,7 +31,7 @@ Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 | Layer | Serialized field | Assigned `internal` field | `GetComponentInParent` | Constructor |
 |---|---|---|---|---|
 | **Pure C# Model** | No | No | No | Yes |
-| **Cell Model** | No | Yes, with a container | No | No |
+| **Cell Model** | No | Models, with a container | Parent Models, without a container | No |
 | **View** | Rendering components, state roots, config values | Models, with a container | Cell Model. Any Model without a container | No |
 | **Controller** | Config values | Models, with a container | Cell Model. Any Model without a container | No |
 
