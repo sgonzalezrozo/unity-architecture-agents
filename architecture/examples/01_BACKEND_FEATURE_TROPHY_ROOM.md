@@ -58,7 +58,7 @@ public interface ITrophyRoomConnector
 }
 ```
 
-`TrophyRoomConnector` implements both calls with the project's backend client. It returns data and holds no state. The installer is in [Dependency injection](../DEPENDENCY_INJECTION.md#installers).
+`TrophyRoomConnector` implements both calls with the project's backend client. It returns data and holds no state. The installer is in [Dependency injection](../DEPENDENCY_INJECTION.md#fast-ioc-installers).
 
 ```csharp
 public enum TrophyLoadState { Idle, Loading, Loaded, Failed }
