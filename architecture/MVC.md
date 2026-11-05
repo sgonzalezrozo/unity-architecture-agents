@@ -34,8 +34,8 @@ This applies to every project, with or without a container. Use the first row th
 | Order | Case | Where it lives | How a View or Controller gets it |
 |---|---|---|---|
 | 1 | Its Views and Controllers can share a parent | MonoBehaviour in the scene or prefab, on a common parent, even a root GameObject of the scene | `GetComponentInParent<TModel>()` |
-| 2 | They can't share a parent, or it must persist | Pure C#, created by the container | Injected `internal` field |
-| 3 | Outside MVC: no View or Controller uses it | Created by the container | It doesn't. Only Models reference it |
+| 2 | They can't share a parent, or it must persist | Pure C#, created by the container. Without one, a singleton | Injected `internal` field. Without a container, `TModel.Instance` |
+| 3 | Outside MVC: no View or Controller uses it | Created by the container. Without one, a singleton | It doesn't. Only Models reference it |
 
 ```
 LivesScreen.prefab [LivesModel]
@@ -46,15 +46,22 @@ LivesScreen.prefab [LivesModel]
 | ID | Rule |
 |---|---|
 | `ROOT-01` | A Model MUST sit on a common parent of the Views and Controllers that use it, or on the same GameObject, whenever one can exist. Prefabs loaded with Addressables count. |
-| `ROOT-02` | Those Views and Controllers MUST get it with `GetComponentInParent<TModel>()` in `Awake`, and cache it. Static singletons and service locators MUST NOT replace this. |
+| `ROOT-02` | Those Views and Controllers MUST get it with `GetComponentInParent<TModel>()` in `Awake`, and cache it. A singleton or a service locator MUST NOT replace this. |
 | `ROOT-03` | A MonoBehaviour Model MUST set its initial state in field initializers. A View's `OnEnable` can run before the Model's `Awake`. |
 | `ROOT-04` | A MonoBehaviour Model is still a Model: it MUST NOT reference a View, a Controller or a non-Model component. |
 | `ROOT-05` | Unit test a MonoBehaviour Model in EditMode with `new GameObject().AddComponent<TModel>()`. |
 | `ROOT-06` | Injection is the exception. A Model MUST NOT be injected into a View or Controller when a common parent can exist. |
-| `ROOT-07` | Without a container, a Model that needs row 2 or 3 MUST stop the task: ask, and don't add a singleton. See [When to ask](AGENT_WORKFLOW.md#when-to-ask). |
+| `ROOT-07` | Without a container, a Model in row 2 or 3 MUST be a pure C# singleton with a public constructor. Views and Controllers cache `TModel.Instance` in `Awake`. With a container, singletons MUST NOT be used. |
 | `ROOT-08` | Views and Controllers MUST NOT reference an Outside-MVC Model (row 3). |
+| `ROOT-09` | A Model that a Recyclable Scroller cell references is row 2. The scroller keeps idle cells in a pool outside the screen, so they have no common parent with it. |
+| `ROOT-10` | A test MUST create its own instance and MUST NOT use `TModel.Instance`, because static state carries over between tests. |
 
-A project that wants pure C# Models without a container MAY use a composition root: a class that creates them and assigns the `internal` fields. It holds no logic, and it runs first with `[DefaultExecutionOrder]`.
+```csharp
+public class CoinBalanceModel
+{
+    public static CoinBalanceModel Instance { get; } = new CoinBalanceModel();
+}
+```
 
 ## Reference acquisition
 
@@ -62,8 +69,8 @@ A project that wants pure C# Models without a container MAY use a composition ro
 |---|---|---|---|---|
 | **Pure C# Model** | No | No | No | Yes |
 | **MonoBehaviour Model** | No | Models | Parent Models | No |
-| **View** | Rendering components, state roots, config values | Models, row 2 only | Models | No |
-| **Controller** | Config values | Models, row 2 only | Models | No |
+| **View** | Rendering components, state roots, config values | Models, row 2 only | Models, row 1 only | No |
+| **Controller** | Config values | Models, row 2 only | Models, row 1 only | No |
 
 `Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
 

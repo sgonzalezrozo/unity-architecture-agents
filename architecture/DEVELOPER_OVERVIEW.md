@@ -63,7 +63,7 @@ public class LivesModel : MonoBehaviour
 - Commands change state and validate themselves. Queries read it. A method is one or the other.
 - Commands may take parameters. **Events never do.**
 - One responsibility. More than about 5 commands means: check whether to split it.
-- When no common parent can exist, or the Model must persist, it is pure C# and injected. That is the exception.
+- When no common parent can exist, or the Model must persist, it is pure C# and injected. That is the exception. Scroller cells count, because idle cells wait in a pool outside the screen. Without a container, use a singleton.
 - Models outside MVC are created by the container, and no View or Controller uses them.
 
 ### View

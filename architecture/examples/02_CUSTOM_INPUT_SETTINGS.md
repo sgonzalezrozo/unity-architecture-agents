@@ -8,12 +8,12 @@ One toggle prefab is reused for every on/off setting. Adding a setting takes one
 
 Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping).
 
-This example injects its Model to show the Fast IoC form. A new feature MUST follow [Where a Model lives](../MVC.md#where-a-model-lives).
+All Views and Controllers sit under one screen, so `SettingsModel` lives on the screen root (row 1 in [Where a Model lives](../MVC.md#where-a-model-lives)). No installer is needed.
 
 ## Hierarchy
 
 ```
-SettingsScreen
+SettingsScreen [SettingsModel]
 ├── SettingRows
 │   ├── MusicRow (SettingToggle.prefab: settingKey = Music)
 │   ├── SoundRow (SettingToggle.prefab: settingKey = Sound)
@@ -43,7 +43,7 @@ One enum and one array replace three identical classes.
 ```csharp
 public enum SettingKey { Music, Sound, Vibration }
 
-public class SettingsModel
+public class SettingsModel : MonoBehaviour
 {
     private const float DEFAULT_VOLUME = 0.8f;
 
@@ -107,7 +107,12 @@ public class SettingToggleView : MonoBehaviour
     [SerializeField] private GameObject disabledRoot;
     [SerializeField] private SettingKey settingKey;
 
-    internal SettingsModel settingsModel;
+    private SettingsModel settingsModel;
+
+    private void Awake()
+    {
+        settingsModel = GetComponentInParent<SettingsModel>();
+    }
 
     private void OnEnable()
     {
@@ -133,7 +138,12 @@ public class ToggleSettingController : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private SettingKey settingKey;
 
-    internal SettingsModel settingsModel;
+    private SettingsModel settingsModel;
+
+    private void Awake()
+    {
+        settingsModel = GetComponentInParent<SettingsModel>();
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -151,7 +161,12 @@ public class VolumeBarView : MonoBehaviour
 {
     [SerializeField] private Image volumeFill;
 
-    internal SettingsModel settingsModel;
+    private SettingsModel settingsModel;
+
+    private void Awake()
+    {
+        settingsModel = GetComponentInParent<SettingsModel>();
+    }
 
     private void OnEnable()
     {
@@ -172,12 +187,12 @@ public class VolumeBarView : MonoBehaviour
 
 public class DragVolumeController : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
-    internal SettingsModel settingsModel;
-
+    private SettingsModel settingsModel;
     private RectTransform barRectTransform;
 
     private void Awake()
     {
+        settingsModel = GetComponentInParent<SettingsModel>();
         barRectTransform = (RectTransform)transform;
     }
 
@@ -211,7 +226,12 @@ public class SaveAreaView : MonoBehaviour
 {
     [SerializeField] private GameObject unsavedChangesRoot;
 
-    internal SettingsModel settingsModel;
+    private SettingsModel settingsModel;
+
+    private void Awake()
+    {
+        settingsModel = GetComponentInParent<SettingsModel>();
+    }
 
     private void OnEnable()
     {
@@ -232,7 +252,12 @@ public class SaveAreaView : MonoBehaviour
 
 public class SaveSettingsController : MonoBehaviour, IPointerClickHandler
 {
-    internal SettingsModel settingsModel;
+    private SettingsModel settingsModel;
+
+    private void Awake()
+    {
+        settingsModel = GetComponentInParent<SettingsModel>();
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -246,11 +271,23 @@ public class SaveSettingsController : MonoBehaviour, IPointerClickHandler
 ```csharp
 public class SettingsModelTests
 {
+    private SettingsModel settingsModel;
+
+    [SetUp]
+    public void SetUp()
+    {
+        settingsModel = new GameObject().AddComponent<SettingsModel>();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        UnityEngine.Object.DestroyImmediate(settingsModel.gameObject);
+    }
+
     [Test]
     public void ToggleSetting_ChangesValueAndMarksUnsavedChanges()
     {
-        SettingsModel settingsModel = new();
-
         settingsModel.ToggleSetting(SettingKey.Vibration);
 
         Assert.IsTrue(settingsModel.IsSettingEnabled(SettingKey.Vibration));
@@ -260,8 +297,6 @@ public class SettingsModelTests
     [Test]
     public void SetNormalizedVolume_WhenOutOfRange_ClampsValue()
     {
-        SettingsModel settingsModel = new();
-
         settingsModel.SetNormalizedVolume(2f);
 
         Assert.AreEqual(1f, settingsModel.NormalizedVolume);
@@ -270,7 +305,6 @@ public class SettingsModelTests
     [Test]
     public void SaveSettings_WhenNoUnsavedChanges_DoesNotNotify()
     {
-        SettingsModel settingsModel = new();
         int notificationCount = 0;
         settingsModel.OnSettingsChanged += () => notificationCount++;
 

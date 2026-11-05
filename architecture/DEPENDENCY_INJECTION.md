@@ -2,13 +2,13 @@
 
 **Load when:** writing bindings or installers, or getting a reference.
 
-Most Views and Controllers don't use injection: they find a Model on a common parent. Injection is for the cases in [Where a Model lives](MVC.md#where-a-model-lives). A static singleton or a service locator MUST NOT be used in any case.
+Most Views and Controllers don't use injection: they find a Model on a common parent. Injection is for the cases in [Where a Model lives](MVC.md#where-a-model-lives). Without a container, those cases use a singleton (`ROOT-07`). A service locator MUST NOT be used in any case.
 
 | Capability | Mechanism for injected Models |
 |---|---|
 | `fastIoC` | Injected `internal` fields. The rest of this document applies |
 | `otherContainer` | That container's injection |
-| Neither | Ask (`ROOT-07`) |
+| Neither | Singleton: `TModel.Instance` (`ROOT-07`) |
 
 ## Reference acquisition
 

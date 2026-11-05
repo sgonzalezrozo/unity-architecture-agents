@@ -141,7 +141,7 @@ private void RenderItems()
 
 ### Cell Model
 
-The only MonoBehaviour Model, because a cell needs a component on the prefab. This form is for `fastIoC` and `recyclableScroller`.
+A MonoBehaviour Model on the cell prefab. Its `inventoryModel` is injected, because pooled cells have no common parent with the screen (`ROOT-09`). This form is for `fastIoC` and `recyclableScroller`.
 
 ```csharp
 public class ItemCellModel : MonoBehaviour, IInjectableForChildren, IRecyclableCell<ItemData>

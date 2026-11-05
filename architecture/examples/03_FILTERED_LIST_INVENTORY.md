@@ -8,7 +8,7 @@ Tabs filter one list, and a details panel renders the selection. All state is lo
 
 Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping).
 
-This example injects its Model to show the Fast IoC form. A new feature MUST follow [Where a Model lives](../MVC.md#where-a-model-lives).
+`InventoryModel` is injected because its cells reference it, and pooled cells have no common parent with the screen (`ROOT-09`). A list whose cells need only their own data can keep its Model on the screen root.
 
 ## Hierarchy
 
