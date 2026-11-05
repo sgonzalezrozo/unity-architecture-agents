@@ -1,32 +1,43 @@
 # MVC
 
-The philosophy is in [AGENTS.md](../AGENTS.md). This document is how to apply it.
+**Load when:** writing any Model, View or Controller.
 
-## Who knows what
+Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 
-| | Models | Connector | Rendering components | Input interfaces | Views | Controllers |
+## Layer definitions
+
+| Term | Definition |
+|---|---|
+| **Model** | Class that owns state and business rules. Pure C# by default |
+| **Module** | Model that wraps a feature's backend access. See [Backend integration](BACKEND_INTEGRATION.md) |
+| **Cell Model** | MonoBehaviour Model on a list cell prefab |
+| **Connector** | Stateless class that performs backend calls |
+| **View** | MonoBehaviour that reads Models and renders |
+| **Controller** | MonoBehaviour that converts one input into one Model command |
+| **Query** | Read-only member. Changes no state |
+| **Command** | Method that changes state. Validates its own input |
+| **Config value** | Serialized enum or number that selects behavior. Never a component or Model reference |
+
+## Dependency matrix
+
+| Layer | Models | Connector | Rendering components | Input interfaces | Views | Controllers |
 |---|---|---|---|---|---|---|
 | **Model** | Yes | Module only | No | No | No | No |
 | **View** | Yes | No | Yes | No | No | No |
 | **Controller** | Yes | No | No | Yes | No | No |
 
-A class may know several Models. A View never references another View, even a child one: each View gets its own Model and refreshes itself.
+## Reference acquisition
 
-## How each layer gets its references
-
-| | Serialized fields | Injected `internal` fields | `GetComponentInParent` | Constructor |
+| Layer | Serialized field | Injected `internal` field | `GetComponentInParent` | Constructor |
 |---|---|---|---|---|
 | **Pure C# Model** | No | No | No | Yes |
-| **Cell Model** (MonoBehaviour) | No | Yes | No | No |
-| **View** | Rendering components and config values | Models | Cell Model | No |
-| **Controller** | Config values only | Models | Cell Model | No |
+| **Cell Model** | No | Yes | No | No |
+| **View** | Rendering components, state roots, config values | Models | Cell Model | No |
+| **Controller** | Config values | Models | Cell Model | No |
 
-- **Config value:** a plain enum, int or similar that selects behavior, such as which tab a controller opens. It never references a component or a Model.
-- `Initialize(model)` methods on MonoBehaviours are method injection and are forbidden.
+`Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
 
-## Model
-
-Holds data and state, applies business rules, notifies changes.
+## Model rules
 
 ```csharp
 public class LivesModel
@@ -35,100 +46,106 @@ public class LivesModel
 
     public event Action OnLivesChanged;
 
-    private int lives = MAX_LIVES;
+    private int remainingLives = MAX_LIVES;
 
-    public int Lives => lives;
-    public bool IsAlive => lives > 0;
+    public int RemainingLives => remainingLives;
+    public bool IsAlive => remainingLives > 0;
 
     public void LoseLife()
     {
         if (!IsAlive)
             return;
 
-        lives--;
+        remainingLives--;
         OnLivesChanged?.Invoke();
     }
 }
 ```
 
-- Pure C# by default. A Model is a MonoBehaviour only when it is a list cell, because the scroller requires it ([Lists](UI_PATTERNS.md#lists)).
-- Exposes **queries** (read-only properties, `IReadOnlyList<T>`) and **commands** (methods that change state). A method does one or the other, not both.
-- Commands validate their own input and ignore invalid calls. Rules live here, never in a Controller.
-- Commands may take parameters. Parameters are the caller telling the Model what to do. Only events are parameterless.
-- Fires an event only when something actually changed.
-- One responsibility, one reason to change. There is no fixed method count, but more than about 5 commands is a signal to check whether it should be split.
-- May subscribe to other Models. Unsubscribe in `Dispose()`, and use a named method, never a lambda.
+| ID | Rule |
+|---|---|
+| `MODEL-01` | A Model MUST be pure C#, unless it is a Cell Model. |
+| `MODEL-02` | A method MUST be a query or a command, not both. `Try*` is the accepted exception. |
+| `MODEL-03` | A command MUST validate its input and ignore invalid calls. Business rules MUST NOT live in a Controller. |
+| `MODEL-04` | Commands MAY take parameters. Events MUST NOT (`UA0004`). |
+| `MODEL-05` | Events MUST use `public event Action OnSomethingChanged;`, in the past tense. |
+| `MODEL-06` | A Model MUST fire an event only when state changed. |
+| `MODEL-07` | A Model MAY subscribe to another Model. It MUST use a named method and unsubscribe in `Dispose()`. |
+| `MODEL-08` | A Model SHOULD have one responsibility. More than about 5 commands signals a split. |
 
-**Events are always `public event Action OnXChanged;`.** The `event` keyword matters: only the owning class can fire it, and no one can overwrite other subscribers. Name them in the past tense.
-
-## View
-
-Renders Model state. Nothing else.
+## View rules
 
 ```csharp
 public class LivesView : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI livesText;
+    [SerializeField] private TextMeshProUGUI remainingLivesText;
 
-    internal LivesModel lives;
+    internal LivesModel livesModel;
 
     private void OnEnable()
     {
-        lives.OnLivesChanged += Refresh;
-        Refresh();
+        livesModel.OnLivesChanged += RenderRemainingLives;
+        RenderRemainingLives();
     }
 
     private void OnDisable()
     {
-        lives.OnLivesChanged -= Refresh;
+        livesModel.OnLivesChanged -= RenderRemainingLives;
     }
 
-    private void Refresh()
+    private void RenderRemainingLives()
     {
-        livesText.text = lives.Lives.ToString();
+        remainingLivesText.text = livesModel.RemainingLives.ToString();
     }
 }
 ```
 
-- **Subscribe in `OnEnable`, call `Refresh()` immediately, unsubscribe in `OnDisable`.** The immediate call matters: the Model may have changed while the View was inactive.
-- Serializes rendering components only: `Image`, `TextMeshProUGUI`, `RectTransform`, `CanvasGroup`, `ViewStateMachine`, `RecyclableScrollRect`.
-- May change activeness, color, size, text, alpha and sprites. May format values for display.
-- Calls no commands, sync or async. It only reads.
-- `Update()` is allowed only for values that change with time, such as countdowns, throttled as in [the example](examples/01_TROPHY_ROOM.md#detailstrophy).
+| ID | Rule |
+|---|---|
+| `VIEW-01` | A View MUST subscribe in `OnEnable`, render immediately, and unsubscribe in `OnDisable`. The Model may have changed while the View was inactive. |
+| `VIEW-02` | A View MUST NOT call a command, sync or async. |
+| `VIEW-03` | A View MUST NOT reference another View, even a child (`UA0001`). Each View reads its own Model. |
+| `VIEW-04` | A View MUST NOT implement input interfaces (`UA0002`). |
+| `VIEW-05` | A View MAY change activeness, color, size, text, alpha and sprites, and MAY format values for display. |
+| `VIEW-06` | A View MAY use `Update()` only for time-based values, throttled as in the [countdown example](examples/01_BACKEND_FEATURE_TROPHY_ROOM.md#detailstrophy-screen). |
 
-## Controller
+Name rendering methods `Render{Subject}`.
 
-Turns input into one Model command.
+## Controller rules
 
 ```csharp
-public class LoseLifeController : BaseClickController
+public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 {
-    internal LivesModel lives;
+    internal LivesModel livesModel;
 
-    protected override void OnClick()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        lives.LoseLife();
+        livesModel.LoseLife();
     }
 }
 ```
 
-- Click input: inherit `BaseClickController` and override `OnClick()`. Its `InitializeController()` hook is where a Controller caches a cell Model.
-- Other input: implement `IPointerDownHandler`, `IDragHandler` and similar directly.
-- A screen lifecycle event is also input: a Controller may implement `IScreenShow` to start a load. See [the example](examples/01_TROPHY_ROOM.md#mainroom).
-- One Controller per action, placed on the element it acts on ([Clickable elements](UI_PATTERNS.md#clickable-elements)).
-- May convert raw input into a domain value, such as a pointer position into 0 to 1. May not decide anything: no state checks, no business conditions.
-- If a click must do two things, that is one command on a Model, not two calls from the Controller.
+| ID | Rule |
+|---|---|
+| `CTRL-01` | A Controller MUST handle one action and sit on the element it acts on. |
+| `CTRL-02` | A Controller MUST call one command per input. If a click does two things, that is one command on a Model. |
+| `CTRL-03` | A Controller MUST NOT check state or hold a rule. |
+| `CTRL-04` | A Controller MAY convert raw input to a domain value, such as a pointer position to 0 to 1. |
+| `CTRL-05` | A Controller MUST NOT serialize a reference to a Unity object (`UA0003`). |
+| `CTRL-06` | A Controller MAY implement `IScreenShow`, because a screen lifecycle event is input. |
 
-## Wrong and right
+For the `BaseClickController` form, see [Optional packages](OPTIONAL_PACKAGES.md).
 
-| Wrong | Right | Why |
+## Violation patterns
+
+| Violation | Correct form | Rule |
 |---|---|---|
-| `Action<int> OnScoreChanged` | `event Action OnScoreChanged`, then read `model.Score` | Pull, never push |
-| `public Action OnChanged { get; set; }` | `public event Action OnChanged;` | Anyone could fire or replace it |
-| `model.OnSelected?.Invoke()` from a Controller | `model.Select(id)` | Only the Model fires its events |
-| `view.Initialize(model)` | `internal` injected field | Method injection |
-| `parentView.Show(data)` or `itemViews[i].Refresh()` | Child View listens to its own Model | Views do not know Views |
-| `view.RefreshButton.onClick += ...` | `RefreshController : BaseClickController` | Controllers do not know Views; no Button |
-| `if (model.State == Active) model.Buy();` in a Controller | `model.Buy()` validates internally | Rules belong in Models |
-| View calls `module.LoadAsync()` | Controller calls it, View reads the result | Views only read |
-| `internal DataService service` in a View | View reads a Model | Views know only Models |
+| `event Action<int> OnScoreChanged` | `event Action OnScoreChanged`, then read `scoreModel.Score` | `ARCH-04` |
+| `public Action OnChanged { get; set; }` | `public event Action OnChanged;` | `MODEL-05` |
+| `model.OnSelected?.Invoke()` in a Controller | `model.SelectItem(itemId)` | `ARCH-04` |
+| `view.Initialize(model)` | Injected `internal` field | `UA0006` |
+| `parentView.Show(data)` or `itemViews[i].Render()` | The child View reads its own Model | `VIEW-03` |
+| `view.RefreshButton.onClick += ...` | A Controller implementing `IPointerClickHandler` | `ARCH-05` |
+| `if (model.State == Active) model.Buy();` in a Controller | `model.Buy()` validates internally | `CTRL-03` |
+| View calls `module.LoadAsync()` | A Controller calls it and the View reads the result | `VIEW-02` |
+| `internal DataService dataService` in a View | The View reads a Model | `ARCH-01` |

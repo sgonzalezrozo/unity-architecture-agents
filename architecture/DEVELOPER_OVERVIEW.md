@@ -1,8 +1,6 @@
-# Development Bible
+# Developer overview
 
-Everything a developer needs to write code here, in one sitting. Every class in this project should look like the same person wrote it.
-
-This is the summary for humans. Details and complete examples are linked from [AGENTS.md](../AGENTS.md).
+The summary for human developers, in one sitting. Agents use [AGENTS.md](../AGENTS.md), which holds the normative rules and their IDs.
 
 ## 1. Philosophy
 
@@ -12,7 +10,7 @@ We use MVC, strictly. These rules are not preferences: code that breaks them is 
 2. **Models own the truth.** All data and all state live in Models.
 3. **Views render. Controllers receive input.** Neither one does the other's job, and neither one decides anything.
 4. **Pull, never push.** If A knows B, A takes what it needs from B. B never hands it over.
-5. **No `Button`.** It is a View and a Controller in one component, so it breaks rule 3. The same goes for `Toggle`, `Slider` and `Dropdown`. `TMP_InputField` is the only exception.
+5. **No `Button`.** It is a View and a Controller in one component, so it breaks rule 3. The same goes for `Toggle`, `Slider` and `Dropdown`. `TMP_InputField` is the only exception. Controllers implement `IPointer*` interfaces.
 6. **A feature lives in one folder.** Code sits next to the prefabs built from it. Source art does not.
 
 ```
@@ -44,17 +42,17 @@ public class LivesModel
 
     public event Action OnLivesChanged;
 
-    private int lives = MAX_LIVES;
+    private int remainingLives = MAX_LIVES;
 
-    public int Lives => lives;
-    public bool IsAlive => lives > 0;
+    public int RemainingLives => remainingLives;
+    public bool IsAlive => remainingLives > 0;
 
     public void LoseLife()
     {
         if (!IsAlive)
             return;
 
-        lives--;
+        remainingLives--;
         OnLivesChanged?.Invoke();
     }
 }
@@ -72,29 +70,29 @@ A MonoBehaviour that reads Models and paints. Always this same shape:
 ```csharp
 public class LivesView : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI livesText;
+    [SerializeField] private TextMeshProUGUI remainingLivesText;
 
-    internal LivesModel lives;
+    internal LivesModel livesModel;
 
     private void OnEnable()
     {
-        lives.OnLivesChanged += Refresh;
-        Refresh();
+        livesModel.OnLivesChanged += RenderRemainingLives;
+        RenderRemainingLives();
     }
 
     private void OnDisable()
     {
-        lives.OnLivesChanged -= Refresh;
+        livesModel.OnLivesChanged -= RenderRemainingLives;
     }
 
-    private void Refresh()
+    private void RenderRemainingLives()
     {
-        livesText.text = lives.Lives.ToString();
+        remainingLivesText.text = livesModel.RemainingLives.ToString();
     }
 }
 ```
 
-- Subscribe and `Refresh()` in `OnEnable`. Unsubscribe in `OnDisable`.
+- Subscribe and render in `OnEnable`. Unsubscribe in `OnDisable`.
 - Serializes rendering components only. Never calls a Model command. Never references another View.
 - `Update()` only for values that change with time, such as countdowns, and throttled.
 
@@ -103,19 +101,19 @@ public class LivesView : MonoBehaviour
 A MonoBehaviour that turns one input into one command.
 
 ```csharp
-public class LoseLifeController : BaseClickController
+public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 {
-    internal LivesModel lives;
+    internal LivesModel livesModel;
 
-    protected override void OnClick()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        lives.LoseLife();
+        livesModel.LoseLife();
     }
 }
 ```
 
-- One Controller per action, placed on an `Actions` child of the element it acts on.
-- Clicks: inherit `BaseClickController`. Anything else: implement `IPointerDownHandler`, `IDragHandler` and so on.
+- One Controller per action, placed on an `{Action}Input` child of the element it acts on.
+- Implement `IPointerClickHandler`, `IPointerDownHandler`, `IDragHandler` and so on. If the project has UI Foundations, clicks can use `BaseClickController`: see [Optional packages](OPTIONAL_PACKAGES.md).
 - May convert a pointer position to a value. May not check state or decide anything.
 - No serialized references. A plain config value, such as which tab it opens, is allowed.
 
@@ -173,11 +171,11 @@ Always in this order, so anyone can find anything:
 | Event | `On` + past tense | `OnLivesChanged` |
 | Async method | `Async` suffix | `LoadAsync` |
 
-Classes are nouns, methods are verbs. Method prefixes state intent: `Get`, `Set`, `Is`/`Has`/`Can`, `Try`, `Calculate`, `Refresh`, `On`.
+Classes are nouns, methods are verbs. Method prefixes state intent: `Get`, `Set`, `Is`/`Has`/`Can`, `Try`, `Calculate`, `Render`, `On`.
 
 **Style**
 
-`.editorconfig` flags most of this in Rider and Visual Studio, and cleanup fixes it on save.
+`.editorconfig` flags most of this in Rider and Visual Studio, and the [analyzers](../analyzers) fail the build for the mechanical rules.
 
 ```csharp
 public void Process(List<ItemData> items)
@@ -233,7 +231,7 @@ Model and Module logic has tests: NUnit, Arrange-Act-Assert, one concern per tes
 Assets/Client/TrophyRoom/
 ├── MainRoom/                     Screen: its C# and prefabs, side by side
 ├── DetailsTrophy/
-└── Services And definitions/     Module, Connector, data, installer, ScreenDefinition
+└── Services/                     Module, Connector, data, installer, ScreenDefinition
 ```
 
 - No `Scripts/` or `Prefabs/` folders inside a feature.

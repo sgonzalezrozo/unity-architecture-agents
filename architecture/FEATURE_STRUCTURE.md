@@ -1,12 +1,14 @@
 # Feature structure
 
-## What a feature is
+**Load when:** adding a feature or screen, placing a file, naming a type or describing a prefab hierarchy.
 
-A feature is usually one main screen plus some modal popups over it. Sometimes it has a few screens the user navigates through, linearly or not.
+## Definition
+
+A feature is usually one main screen plus modal popups. It may have several screens the user navigates between.
 
 ## Folders
 
-`Assets/Client/` has one folder per feature. Inside a feature, there is one folder per screen plus `Services And definitions`.
+`Assets/Client/` has one folder per feature. A feature has one folder per screen, plus `Services`.
 
 ```
 Assets/
@@ -16,10 +18,10 @@ Assets/
 │   │   ├── EditRoom/
 │   │   ├── DetailsTrophy/
 │   │   ├── DetailsTrophySnapshot/
-│   │   └── Services And definitions/
-│   ├── Season Store/
+│   │   └── Services/
+│   ├── SeasonStore/
 │   ├── Inventory/
-│   ├── Home Page/
+│   ├── HomePage/
 │   └── Shared/
 ├── Art/        Source art: textures, sprites, materials, VFX, animations
 ├── Audio/      Source audio: SFX, Music, Voice
@@ -38,11 +40,11 @@ Art source files stay in `Assets/Art/` and `Assets/Audio/`. "Created assets" (pr
 
 A very large screen may use subfolders by section (`Tabs/`, `Members/`), never by file type.
 
-### Inside `Services And definitions`
+### Inside `Services`
 
 | File | Role |
 |---|---|
-| `{Feature}Module.cs` | Pure C# Model that wraps the feature's backend connection ([Backend](BACKEND.md)) |
+| `{Feature}Module.cs` | Pure C# Model that wraps the feature's backend connection ([Backend integration](BACKEND_INTEGRATION.md)) |
 | `I{Feature}Connector.cs`, `{Feature}Connector.cs` | Connector interface and implementation |
 | `{Feature}Data.cs` | Data classes from the backend |
 | `{Feature}Installer.cs` | FastIoC bindings ([Dependency injection](DEPENDENCY_INJECTION.md)) |
@@ -66,29 +68,37 @@ Only for things used by two or more features that belong to none of them: reusab
 | Feature Module | `{Feature}Module` | `TrophyRoomModule` |
 | View | `{Name}View` | `TrophyCellView` |
 | Controller | `{Action}Controller` | `ClaimTrophyController` |
+| Input GameObject | `{Action}Input` | `ClaimTrophyInput` |
+| State root GameObject | `{State}Root` | `LoadingRoot` |
+| Rendering method | `Render{Subject}` | `RenderTrophyName` |
 | Data | `{Name}Data` | `TrophyData` |
 | Connector | `I{Feature}Connector`, `{Feature}Connector` | `ITrophyRoomConnector` |
 | Installer | `{Feature}Installer` | `TrophyRoomInstaller` |
 | Prefab | Same as its main element | `MainRoom.prefab`, `TrophyCell.prefab` |
 
-**Namespaces:** `Client.{Feature}`, flat for the whole feature. Folder names with spaces do not map to namespaces: in Rider, turn off the *Namespace Provider* property on `Services And definitions`.
+**Namespaces:** `Client.{Feature}`, flat for the whole feature. Folder names MUST NOT contain spaces.
 
 ## Screen composition
 
 ```
 TrophyRoomMain [MainRoomLoadController, MainRoomStateView]
 ├── Header
-│   ├── Title (TextMeshProUGUI)
-│   └── Actions (Close) [CloseController]
+│   ├── TitleText (TextMeshProUGUI)
+│   └── CloseInput (Image: alpha 0) [CloseController]
 ├── Content (static elements, tab content or a scroller)
 └── Footer
 ```
 
-**Hierarchy notation** used everywhere in these docs:
+**Hierarchy notation:**
 
-- `Name (Type)` is a GameObject with a Unity component.
-- `Name [ComponentA, ComponentB]` is a GameObject with our MonoBehaviours.
-- Pure C# Models never appear in a hierarchy, because they are not on any GameObject.
+| Form | Meaning |
+|---|---|
+| `Name (UnityType)` | GameObject with a Unity component |
+| `Name (UnityType: setting)` | The same, with a required setting |
+| `Name [ProjectType]` | GameObject with project MonoBehaviours |
+| `Name (UnityType) [ProjectType]` | GameObject with both |
+
+Pure C# Models never appear in a hierarchy, because they aren't on any GameObject.
 
 Rules:
 
@@ -100,9 +110,9 @@ Rules:
 
 Popups are separate prefabs in the screen folder that uses them. A modal's state lives in a Model like any other state.
 
-**Not specified yet.** `ScreenSystem`, `ScreenDefinition`, modal stacking, returning a result from a modal, and passing context between screens have no documented API. Assistants must read how existing features do it, and must ask if there is no precedent.
+**Not specified yet.** `ScreenSystem`, `ScreenDefinition`, modal stacking, returning a result from a modal, and passing context between screens have no documented API. Agents MUST read how existing features do it, and MUST ask if there is no precedent.
 
-One rule already applies: nothing is pushed to a screen. If screen B needs to know which trophy was selected, A sets it on a shared Model and B reads it there. [Trophy Room](examples/01_TROPHY_ROOM.md) does this with `TrophyRoomModule.Select`.
+One rule already applies: nothing is pushed to a screen. If screen B needs the selected trophy, screen A sets it on a shared Model and B reads it there. The [backend example](examples/01_BACKEND_FEATURE_TROPHY_ROOM.md) does this with `TrophyRoomModule.SelectTrophy`.
 
 Scene transitions always go through the project's scene loader, never `SceneManager` directly. It prepares the Screen System for the scene change and shows the splash screen while the next scene loads. Showing a menu screen is not the same as leaving a match scene.
 

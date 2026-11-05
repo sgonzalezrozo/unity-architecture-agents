@@ -4,7 +4,7 @@
 
 An instruction is a request, not a guarantee. These rules fail the build, whether a person or an agent wrote the code.
 
-| Rule | Self-check | Fails when |
+| Rule | Checklist item | Fails when |
 |---|---|---|
 | `UA0001` | 1, 2 | A Model knows a View, a Controller or a Unity component, or a View or Controller knows a View or Controller |
 | `UA0002` | 2 | A View implements an `EventSystems` input interface |
@@ -19,9 +19,9 @@ An instruction is a request, not a guarantee. These rules fail the build, whethe
 | `UA0011` | 8 | Code uses `var` |
 | `UA0012` | 8 | Code uses `?.` on a Unity object |
 
-Layers come from class names: `*Model` and `*Module`, `*View`, and `*Controller` or a `BaseClickController` subclass. `TMP_InputField` is allowed.
+Layers come from class names: `*Model` and `*Module`, `*View`, and `*Controller`. A `BaseClickController` subclass also counts as a Controller, if the project has UI Foundations. `TMP_InputField` is allowed.
 
-The self-check also covers rules a compiler can't judge, such as a View calling a command, a Controller holding a rule, file locations and hardcoded text. Those stay in code review.
+The [checklist](../architecture/AGENT_WORKFLOW.md#pre-response-checklist) also covers rules a compiler can't judge, such as a View calling a command, a Controller holding a rule, file locations and hardcoded text. Those stay in code review.
 
 ## Install
 

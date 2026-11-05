@@ -1,217 +1,206 @@
 # UI patterns
 
-## Clickable elements
+**Load when:** building clickable elements, visual states, tabs, lists or layouts.
 
-We do not use `Selectable` components. Replace them like this:
+Examples use plain Unity APIs. If `uiFoundations = true`, apply the mapping in [Optional packages](OPTIONAL_PACKAGES.md).
 
-| Instead of | Use |
+## Selectable replacements
+
+| Do not use | Use |
 |---|---|
-| `Button` | Graphic + Controller on `BaseClickController` |
-| `Toggle` | `ViewStateMachine` with On and Off + click Controller |
-| `Slider` | `Image` fill + Controller with `IPointerDownHandler`, `IDragHandler` |
-| `Dropdown` | A modal with a list |
-| `TMP_InputField` | Allowed. The one exception |
+| `Button` | Graphic plus click Controller |
+| `Toggle` | View with On and Off roots, plus click Controller |
+| `Slider` | `Image` fill plus Controller with `IPointerDownHandler` and `IDragHandler` |
+| `Dropdown` | Modal with a list |
+| `TMP_InputField` | Allowed. The one exception to `ARCH-05` |
+
+## Clickable elements
 
 ```
 CloseButton
 ├── Visuals
 │   ├── Background (Image, raycastTarget off)
 │   └── Label (TextMeshProUGUI, raycastTarget off)
-└── Actions (Close) [CloseController]
+└── CloseInput (Image: alpha 0, raycastTarget on) [CloseController]
 ```
 
-- The Controller sits on a child named `Actions`, separate from the visuals. The text in parentheses is only a description of the action in these docs.
-- **`Actions` needs a raycast target of its own.** Click events travel up to parents, not across to siblings, so a sibling `Visuals` will not trigger it. Give `Actions` a transparent Graphic that fills the element, and place it last so it is on top.
-- Turn off `raycastTarget` on the purely visual Graphics.
-- An element with several visual states has its `Actions` inside the state that accepts input, so a locked state is unclickable by construction.
-
-Screen-level Controllers exist only for lifecycle events, never for input from a child element.
+| ID | Rule |
+|---|---|
+| `INPUT-01` | The Controller MUST sit on a dedicated child named `{Action}Input`, separate from the visuals. |
+| `INPUT-02` | `{Action}Input` MUST have its own raycast target that fills the element, and MUST be the last sibling. Pointer events bubble to parents, not to siblings. |
+| `INPUT-03` | Visual-only Graphics MUST have `raycastTarget` off. |
+| `INPUT-04` | In a multi-state element, `{Action}Input` MUST be inside the state that accepts input, so other states can't be clicked. |
+| `INPUT-05` | A screen-level Controller MUST handle only lifecycle events, never input from a child element. |
 
 ## Visual states
 
-Use `ViewStateMachine` for two or more mutually exclusive looks of the same element: Loading/Loaded/Failed, Locked/Available/Owned, On/Off.
+Use for two or more mutually exclusive looks of one element, such as Loading, Loaded and Failed.
 
 ```
-PurchaseArea [ViewStateMachine, PurchaseStateView]
-├── Available
-│   ├── Price (TextMeshProUGUI)
-│   └── Actions (Buy) [BuyController]
-├── Locked
+PurchaseArea [PurchaseStateView]
+├── AvailableRoot
+│   ├── PriceText (TextMeshProUGUI)
+│   └── BuyInput (Image: alpha 0) [BuyController]
+├── LockedRoot
 │   └── LockIcon (Image)
-└── Owned
+└── OwnedRoot
     └── OwnedBadge (Image)
 ```
 
-```csharp
-public class PurchaseStateView : MonoBehaviour
-{
-    [SerializeField] private ViewStateMachine states;
-
-    internal StoreModel store;
-
-    private void OnEnable()
-    {
-        store.OnStateChanged += Refresh;
-        Refresh();
-    }
-
-    private void OnDisable()
-    {
-        store.OnStateChanged -= Refresh;
-    }
-
-    private void Refresh()
-    {
-        states.SetActiveState(store.SelectedItemState.ToString());
-    }
-}
-```
-
-- The Model holds an enum. Child GameObjects are named exactly as the enum values.
-- `enum.ToString()` allocates, which is fine in an event handler and not in `Update()`.
-- For state that is not an enum, use `private const string STATE_ON = "On";`, never a literal in the call.
-- One `ViewStateMachine` per concern. Nest them if needed.
-- For a simple show or hide of one element, use `CanvasGroup` or the View's own logic.
-- Remember that a View inside a state is disabled while that state is off. It re-reads the Model in `OnEnable`.
+| ID | Rule |
+|---|---|
+| `STATE-01` | The Model MUST expose the state, preferably as an enum. |
+| `STATE-02` | The View MUST render every root from that state in one method. See [the code](OPTIONAL_PACKAGES.md#visual-state-view). |
+| `STATE-03` | One state set per concern. Nest them if needed. |
+| `STATE-04` | A View inside an inactive root is disabled, so it MUST read the Model again in `OnEnable`. |
+| `STATE-05` | To show or hide one element, use `CanvasGroup` or the View's own logic. |
 
 ## Tabs
 
-Tab content is **static**. It is nested in the prefab at edit time, never instantiated at runtime.
+Tab content is static: nested in the prefab at edit time, never instantiated at runtime.
 
 ```
 InventoryScreen
 ├── Tabs
-│   ├── WeaponsTab [ViewStateMachine, InventoryTabView]
-│   │   ├── Active
-│   │   ├── Inactive
-│   │   └── Actions (SelectWeapons) [InventoryTabController]
+│   ├── WeaponsTab [InventoryTabView]
+│   │   ├── ActiveRoot
+│   │   ├── InactiveRoot
+│   │   └── SelectWeaponsInput (Image: alpha 0) [SelectTabController]
 │   └── ArmorTab (same components, different serialized tab)
 └── Content [TabContentView]
     ├── WeaponsContent (CanvasGroup)
     └── ArmorContent (CanvasGroup)
 ```
 
-- One Model holds the selected tab, preferably as an enum.
-- Tab buttons share one View class and one Controller class. A serialized enum says which tab each one is.
+- One Model MUST hold the selected tab, preferably as an enum.
+- Tab elements MUST share one View class and one Controller class. A serialized enum selects the tab.
 - Each tab has its own prefab, nested in the screen.
-- Hide tabs with `CanvasGroup` (`alpha`, `interactable`, `blocksRaycasts`) so their Views stay subscribed. Use `SetActive` when a hidden tab is expensive to keep running.
-- Tab content that filters one list does not need separate prefabs: see [Inventory](examples/03_INVENTORY.md).
+- Hide tabs with `CanvasGroup` (`alpha`, `interactable`, `blocksRaycasts`) so their Views stay subscribed. Use `SetActive` when a hidden tab is expensive.
+- Tabs that filter one list need no separate prefabs: see [Filtered list](examples/03_FILTERED_LIST_INVENTORY.md).
 
 ## Lists
 
-Use `RecyclableScrollRect` for all dynamic lists and grids.
+All dynamic lists and grids MUST use `RecyclableScrollRect<T>`. It is abstract, so declare one concrete class per data type:
+
+```csharp
+public class ItemScroller : RecyclableScrollRect<ItemData>
+{
+}
+```
 
 ```
 ItemList [ItemListView]
-└── Scroller (RecyclableScrollRect)
-    └── Viewport (RectMask2D only)
+└── ItemScroller [ItemScroller]
+    └── Viewport (RectMask2D)
         └── Container (RectTransform)
 
 ItemCell.prefab [ItemCellModel, ItemCellView]
-├── Icon (Image)
-├── Label (TextMeshProUGUI)
-└── Actions (Select) [ItemCellController]
+├── ItemIcon (Image)
+├── ItemNameText (TextMeshProUGUI)
+└── SelectItemInput (Image: alpha 0) [SelectItemController]
 ```
 
-### The list's data source
+### Data source
 
-The Model that owns the list implements `IRecyclableDataSource<T>`. No extra container class is needed.
+The Model that owns the list implements `IRecyclableDataSource<T>`:
 
 ```csharp
-public int Count => items.Count;
+public int ItemCount => items.Count;
 
 public ItemData GetItem(int index)
 {
     return items[index];
 }
+
+public IReadOnlyList<ItemData> GetAllItems()
+{
+    return items;
+}
 ```
 
-The list View initializes the scroller once and refreshes it when the Model changes:
+The list View initializes the scroller once and refreshes it on each change:
 
 ```csharp
 private void OnEnable()
 {
-    inventory.OnItemsChanged += Refresh;
+    inventoryModel.OnItemsChanged += RenderItems;
 
-    if (!scroller.IsInitialized)
-        scroller.Initialize(inventory);
+    if (!itemScroller.IsInitialized)
+        itemScroller.Initialize(inventoryModel);
 
-    Refresh();
+    RenderItems();
 }
 
-private void Refresh()
+private void RenderItems()
 {
-    scroller.Refresh();
+    itemScroller.Refresh();
 }
 ```
 
-### The cell Model
+### Cell Model
 
-The one case where a Model is a MonoBehaviour: the scroller needs a component on the prefab.
+The only MonoBehaviour Model. The scroller requires a component on the prefab.
 
 ```csharp
 public class ItemCellModel : MonoBehaviour, IInjectableForChildren, IRecyclableCell<ItemData>
 {
     private const float CELL_HEIGHT = 120f;
 
-    public event Action OnDataChanged;
+    public event Action OnItemDataChanged;
 
-    internal InventoryModel inventory;
+    internal InventoryModel inventoryModel;
 
-    private ItemData data;
+    private ItemData itemData;
 
     public float DefaultCellSize => CELL_HEIGHT;
-    public bool IsSelected => data != null && inventory.SelectedItemId == data.Id;
+    public bool IsSelected => itemData != null && inventoryModel.SelectedItemId == itemData.id;
 
     public ItemData Data
     {
-        get => data;
+        get => itemData;
         set
         {
-            data = value;
-            OnDataChanged?.Invoke();
+            itemData = value;
+            OnItemDataChanged?.Invoke();
         }
     }
 
-    public void Select()
+    public void SelectItem()
     {
-        if (data != null)
-            inventory.SelectItem(data.Id);
+        if (itemData != null)
+            inventoryModel.SelectItem(itemData.id);
     }
 }
 ```
 
-- `IInjectableForChildren` gives the cell its `internal` fields. `IRecyclableCell<T>` is how the scroller sets `Data`. That assignment is the one push we accept, since it is the library's contract, and it stops at the cell Model.
-- **The `Data` setter fires an event.** A recycled cell can get new data while it stays active, so `OnEnable` alone would show stale content.
-- Cell Views and Controllers find it with `GetComponentInParent<ItemCellModel>()`: Views in `Awake`, Controllers in `InitializeController()`.
-- Cells never call `Initialize(data)`, and nothing instantiates them by hand.
+| ID | Rule |
+|---|---|
+| `LIST-01` | `IInjectableForChildren` gives the cell its `internal` fields. `IRecyclableCell<T>` is how the scroller sets `Data`. |
+| `LIST-02` | The `Data` setter MUST fire an event. A recycled cell can get data while active, so `OnEnable` alone would show stale content. This is the one accepted push, and it MUST stop at the Cell Model. |
+| `LIST-03` | Cell Views and Controllers MUST get the Cell Model with `GetComponentInParent<TCellModel>()` in `Awake`. |
+| `LIST-04` | Cells MUST NOT be instantiated by hand or call `Initialize(data)`. |
 
-Complete cells: [Trophy Room](examples/01_TROPHY_ROOM.md#mainroom) and [Inventory](examples/03_INVENTORY.md).
-
-### Scroller reference
+### Scroller API
 
 | Member | Use |
 |---|---|
-| `Initialize(source)` | Once |
+| `Initialize(source)` | Call once |
 | `SetDataSource(source)` | Replace the source |
-| `Refresh()` | Redraw after data changes. Call it once per batch |
-| `ScrollToItem(index)`, `ScrollToStart()`, `ScrollToEnd()` | Jump |
-| `ForceStopScrolling()`, `Clear()` | Stop momentum, remove all |
+| `Refresh()` | Redraw after data changes. Call once per batch |
+| `ScrollToItem(index)`, `ScrollToStart()`, `ScrollToEnd()` | Jump to a position |
+| `ForceStopScrolling()`, `Clear()` | Stop momentum, remove all cells |
 | `IsInitialized`, `VisibleStartIndex`, `VisibleEndIndex` | Read state |
-
-Inspector settings for tuning: *Estimated Cell Height*, *Pool Percentage* (1.4 is 40% extra), *Cells Per Frame* (lower for heavy cells), *Grid Count* or *Use Dynamic Grid Count*.
 
 ## Layouts
 
-All layouts fill the available space and adapt when their container changes.
-
 ```
-ScreenRoot (fills parent, vertical layout)
+ScreenRoot (fills parent, VerticalLayoutGroup)
 ├── Header (fixed or preferred height)
 ├── Content (flexible, fills the remainder)
 └── Footer (fixed or preferred height)
 ```
 
-- Use `LayoutGroup` with preferred and flexible sizes rather than fixed positions.
-- Keep hierarchies shallow: more than about 5 levels is a warning sign.
+- Layouts MUST fill the available space and adapt to their container.
+- Use `LayoutGroup` with preferred and flexible sizes, not fixed positions.
+- More than about 5 hierarchy levels is a warning sign.
 - Test at several aspect ratios.

@@ -1,8 +1,10 @@
 # Dependency injection
 
-We use **FastIoC**. Bindings are defined per feature and resolved without reflection at runtime.
+**Load when:** writing bindings or installers, or getting a reference.
 
-## Getting a dependency
+The container is **FastIoC**. Bindings are defined per feature and resolved through generated code.
+
+## Reference acquisition
 
 | Class | How |
 |---|---|
@@ -15,7 +17,7 @@ public class TrophyCountView : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI countText;
 
-    internal TrophyRoomModule module;
+    internal TrophyRoomModule trophyRoomModule;
 }
 ```
 
@@ -31,30 +33,31 @@ public class TrophyRoomModule
 }
 ```
 
-Injected fields are ready before `Awake`.
+Injected fields are assigned before `Awake`.
 
-Forbidden: `[Inject]`, `public` injected fields, `Initialize(...)` on a MonoBehaviour, constructors on a MonoBehaviour, and resolving from `ContextRuntime` as a service locator. FastIoC flags this in the Editor and development builds.
+| ID | Rule |
+|---|---|
+| `DI-01` | `[Inject]` MUST NOT be used (`UA0007`). |
+| `DI-02` | MonoBehaviour fields MUST be `private`, or `internal` with no attribute when injected (`UA0008`). |
+| `DI-03` | `Initialize(...)` with parameters MUST NOT exist on a MonoBehaviour (`UA0006`). |
+| `DI-04` | A MonoBehaviour MUST NOT have a constructor. |
+| `DI-05` | Code MUST NOT resolve from `ContextRuntime` as a service locator. FastIoC flags this in the Editor and development builds. |
+| `DI-06` | Injected fields MUST NOT be null-checked. A failed injection should fail loudly. |
+| `DI-07` | Primitives MUST NOT be bound. Put configuration in a typed class and bind that. |
+| `DI-08` | A type MUST be bound once per scope. |
 
-Do not null-check injected fields. If injection fails, it should fail loudly.
-
-### The trap of attribute-free injection
-
-FastIoC matches by **type**: the field name does not matter, and there is no attribute marking intent. So:
-
-- Use `internal` only for injected fields. Everything else is `private`.
-- Never bind primitives such as `Bind<int>()` or `Bind<string>()`. Put configuration in a typed class and bind that.
-- Bind each type once per scope.
+FastIoC matches by **type**. The field name doesn't matter and no attribute marks intent, so `internal` is the only signal that a field is injected.
 
 ## Installers
 
-One `BindingRecorder` per feature, in `Services And definitions/`.
+One `BindingRecorder` per feature, in `Services/`.
 
 ```csharp
 using FastIoC.API;
 
 namespace Client.TrophyRoom
 {
-    [MonoInstaller("Bootgame", "TrophyRoom", Priority = 200)]
+    [MonoInstaller("MainMenu", "TrophyRoom", Priority = 200)]
     public class TrophyRoomInstaller : BindingRecorder
     {
         public override void InstallBindings()
@@ -66,7 +69,7 @@ namespace Client.TrophyRoom
 }
 ```
 
-`[MonoInstaller(scene, subscene, Priority = n)]`: scene name, optional subscene or zone, and install order (higher first).
+`[MonoInstaller(sceneNames, Priority = n)]`: the scenes the installer applies to, and the install order (higher runs first). With no scene names, the installer is global.
 
 | Priority | Use |
 |---|---|
@@ -83,7 +86,7 @@ Bind Models, Modules and Connectors only. Never bind Views or Controllers: they 
 |---|---|
 | `Bind<T>().AsSingle()` | One shared instance, created on first use. Use this unless another lifetime is needed |
 | `Bind<IT>().To<T>().AsSingle()` | Interface to implementation |
-| `Bind<T>().AsCached()` | One instance per scene, released when the scene unloads |
+| `Bind<T>().AsCached()` | One cached instance, cleared when a scene unloads |
 | `Bind<T>().AsTransient()` | A new instance per injection. This is also the lifetime when none is given |
 | `Bind<T>().FromInstance(x)` | An existing instance, shared as a singleton |
 | `Bind<T>().FromInstance("Path").AsSingle()` | A prefab or ScriptableObject loaded by name or `Assets/...` path |
@@ -92,11 +95,12 @@ FastIoC has no factory delegates. When creation needs custom logic, bind a facto
 
 ## Scope
 
-- Use a feature subscene for anything that lives and dies with the feature.
+- Use the feature's scene for anything that lives and dies with the feature.
 - A dependency needed by several features goes in a shared scope with a higher priority.
+- A scene-specific `AsSingle()` instance stays cached after its scene unloads. Use `AsCached()` to tie an instance to a scene.
 
 ## Runtime-created objects
 
-Cells spawned by the scroller receive injection through `IInjectableForChildren` on their Model. See [Lists](UI_PATTERNS.md#lists).
+Scroller cells receive injection through `IInjectableForChildren` on their Cell Model. See [Lists](UI_PATTERNS.md#lists).
 
-Never call `Instantiate` directly for a prefab with injected fields. Use `IPrefabInstantiator`, or the fields stay empty.
+Code MUST NOT call `Instantiate` directly for a prefab with injected fields. Use `IPrefabInstantiator`, or the fields stay empty.

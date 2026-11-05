@@ -1,13 +1,15 @@
-# AI workflow
+# Agent workflow
 
-How assistants work in a project that uses these rules. Match the process to the size of the request.
+**Load when:** starting any task.
 
-## Size of the task
+Match the process to the task size. Run [capability detection](OPTIONAL_PACKAGES.md#capability-detection) before generating UI code.
+
+## Task classification
 
 | Request | Process |
 |---|---|
 | Question, explanation, review | Answer directly |
-| Small change: inside existing classes, no architectural decision | Make the change and summarize it |
+| Small change inside existing classes, with no architectural decision | Make the change and summarize it |
 | New feature, new screen, new class family, refactor, anything touching `Shared/` | Plan first, wait for approval |
 
 ## Plan
@@ -19,17 +21,18 @@ Feature: PlayerStats
 Location: Assets/Client/PlayerStats/
 New files: list
 Changed files: list
-FastIoC scope: subscene "PlayerStats", priority 200
+FastIoC scope: scene "PlayerStats", priority 200
 Tests: PlayerStatsModelTests
 New dependencies: none
+Optional packages: uiFoundations = true | false
 Open questions: list
 ```
 
 ## When to ask
 
-Ask when the docs and the existing code do not settle a decision. Do not ask what they already answer.
+Ask when the docs and the existing code don't settle a decision. Don't ask what they already answer.
 
-Always ask before:
+Agents MUST ask before:
 
 - Adding any package or dependency
 - Changing `Shared/`, core patterns or public behavior of existing code
@@ -41,21 +44,22 @@ Never fill a gap with a guess presented as fact. If you assumed something, say s
 
 ## Working in Unity
 
-- Do not hand-edit `.prefab`, `.unity`, `.asset` or `.meta` files. Provide the hierarchy in the [notation](FEATURE_STRUCTURE.md#screen-composition), plus the Inspector steps for the developer.
+- Do not hand-edit `.prefab`, `.unity`, `.asset` or `.meta` files. Describe the hierarchy with the [notation](FEATURE_STRUCTURE.md#screen-composition), plus the Inspector steps for the developer.
 - Unity generates `.meta` files. A moved file must move with its `.meta`.
 - Do not change generated code or external packages.
 - Never rename serialized fields without `[FormerlySerializedAs]`.
 - Stay within the agreed scope. Mention other problems you notice, but do not fix them unasked.
 
-## Self-check
+## Pre-response checklist
 
-Before replying with code:
+Run this before returning code. Item numbers are stable: the [analyzers](../analyzers) refer to them.
 
 1. Does any Model know a View, a Controller or a Unity component?
 2. Does any View handle input, call a command, or know another View or a service?
-3. Does any Controller touch a visual, hold a rule, or serialize a reference?
+3. Does any Controller change a visual, hold a rule, or serialize a reference?
 4. Does any event have parameters? Is anything pushed that could be pulled?
 5. Is there a `Button`, `Toggle`, `Slider`, `Dropdown`, `onClick` or `Initialize(model)`?
+   Is `UIFoundations` referenced while `uiFoundations = false`?
 6. Are injected fields `internal` with no attribute, and everything else `private`?
 7. Is every file in the right folder, and is source art outside the feature?
 8. Are there lambdas, LINQ, `var`, `?.` on Unity objects, or hardcoded text?
@@ -68,7 +72,7 @@ State what changed, how it was verified, and what was not verified. If you could
 
 **Every change**
 
-- [ ] Follows `AGENTS.md` and the self-check above
+- [ ] Follows `AGENTS.md` and the checklist above
 - [ ] Compiles with no new warnings
 - [ ] Existing tests pass; new Model and Module logic has tests
 - [ ] No unused code, no debug logs

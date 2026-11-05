@@ -4,22 +4,23 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-These are the rules and examples I give assistants such as Claude Code, Copilot and Rider's AI Assistant. They keep generated code consistent with a strict MVC architecture, and they scale the process to the size of the task. I use them in my personal Unity projects.
+These are the rules I give coding agents such as Claude Code, Copilot and Rider's AI Assistant. They're written for machines: each rule has a stable ID and a MUST or MUST NOT, and it says whether a compiler analyzer or a code review enforces it. I use them in my personal Unity projects.
 
 ## What's included
 
 | File | Purpose |
 |---|---|
 | [AGENTS.md](AGENTS.md) | Entry point: stack, philosophy and where to read next |
-| [Development Bible](architecture/DEV_BIBLE.md) | One-file summary for human developers |
-| [AI workflow](architecture/AI_WORKFLOW.md) | Process by task size, plan format, self-check, Definition of Done and Git |
+| [Developer overview](architecture/DEVELOPER_OVERVIEW.md) | One-file summary for human developers |
+| [Agent workflow](architecture/AGENT_WORKFLOW.md) | Task classification, plan format, checklist, Definition of Done and Git |
 | [MVC](architecture/MVC.md) | How Models, Views and Controllers work together |
 | [Feature structure](architecture/FEATURE_STRUCTURE.md) | Folders, naming, and screen composition |
 | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) | Bindings, installers and references |
-| [Backend](architecture/BACKEND.md) | How features talk to a backend |
+| [Backend integration](architecture/BACKEND_INTEGRATION.md) | How features talk to a backend |
 | [UI patterns](architecture/UI_PATTERNS.md) | Clickable elements, visual states, tabs, lists and layouts |
+| [Optional packages](architecture/OPTIONAL_PACKAGES.md) | How an agent detects UI Foundations and adapts its code |
 | [C# standards](architecture/CSHARP_STANDARDS.md) | Style, performance, async, logging and tests |
-| [Examples](architecture/examples) | Three complete features with invented names: Trophy Room, Settings and Inventory |
+| [Examples](architecture/examples) | Three complete features with invented names: a backend feature, custom input and a filtered list |
 | [Templates](templates) | `.editorconfig`, Copilot instructions and a Rider AI Assistant rule |
 | [Analyzers](analyzers) | Roslyn analyzers that turn the mechanical rules into compile errors |
 
@@ -31,7 +32,7 @@ These are the rules and examples I give assistants such as Claude Code, Copilot 
 | Small change inside existing classes | Make the change and summarize it |
 | New feature, screen, class family or refactor | Plan first, wait for approval |
 
-Before replying with code, the assistant runs the [self-check](architecture/AI_WORKFLOW.md#self-check), a short list of questions that catch architecture violations.
+Before returning code, the agent runs the [pre-response checklist](architecture/AGENT_WORKFLOW.md#pre-response-checklist). The [analyzers](analyzers) turn the mechanical items into compile errors.
 
 ## Use it in a project
 
@@ -86,7 +87,7 @@ git submodule update --remote .ai
 
 ## Project status
 
-This is version `0.1.0`. The rules assume the [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller) and [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) packages.
+This is version `0.1.0`. The rules assume the [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller) and [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) packages. [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) is optional: without it, the rules use Unity's own event interfaces.
 
 ## Changelog
 
