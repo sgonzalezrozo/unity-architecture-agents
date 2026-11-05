@@ -32,6 +32,8 @@ Assets/Client/TrophyRoom/
     ├── TrophyData.cs
     ├── ITrophyRoomConnector.cs
     ├── TrophyRoomConnector.cs
+    ├── IClock.cs
+    ├── SystemClock.cs
     ├── TrophyRoomInstaller.cs
     ├── MainRoom.asset              ScreenDefinition
     └── DetailsTrophy.asset         ScreenDefinition
@@ -58,7 +60,19 @@ public interface ITrophyRoomConnector
 }
 ```
 
-`TrophyRoomConnector` implements both calls with the project's backend client. It returns data and holds no state. The installer is in [Dependency injection](../DEPENDENCY_INJECTION.md#fast-ioc-installers).
+```csharp
+public interface IClock
+{
+    long UtcNowUnixSeconds { get; }
+}
+
+public class SystemClock : IClock
+{
+    public long UtcNowUnixSeconds => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+}
+```
+
+`TrophyRoomConnector` implements both calls with the project's backend client. It returns data and holds no state. `IClock` keeps the Module deterministic (`DET-06`), so a test controls the time. The installer is in [Dependency injection](../DEPENDENCY_INJECTION.md#fast-ioc-installers).
 
 ```csharp
 public enum TrophyLoadState { Idle, Loading, Loaded, Failed }
@@ -73,6 +87,7 @@ public class TrophyRoomModule : IRecyclableDataSource<TrophyData>
     public event Action OnTrophySelectionChanged;
 
     private readonly ITrophyRoomConnector trophyRoomConnector;
+    private readonly IClock clock;
     private readonly List<TrophyData> trophies = new();
 
     private TrophyLoadState loadState = TrophyLoadState.Idle;
@@ -108,14 +123,14 @@ public class TrophyRoomModule : IRecyclableDataSource<TrophyData>
             if (selectedTrophy == null)
                 return 0;
 
-            long nowUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            return Math.Max(0, selectedTrophy.expiresAtUnixSeconds - nowUnixSeconds);
+            return Math.Max(0, selectedTrophy.expiresAtUnixSeconds - clock.UtcNowUnixSeconds);
         }
     }
 
-    public TrophyRoomModule(ITrophyRoomConnector trophyRoomConnector)
+    public TrophyRoomModule(ITrophyRoomConnector trophyRoomConnector, IClock clock)
     {
         this.trophyRoomConnector = trophyRoomConnector;
+        this.clock = clock;
     }
 
     public TrophyData GetItem(int index)
@@ -550,13 +565,15 @@ public class ClaimTrophyController : MonoBehaviour, IPointerClickHandler
 public class TrophyRoomModuleTests
 {
     private ITrophyRoomConnector trophyRoomConnector;
+    private IClock clock;
     private TrophyRoomModule trophyRoomModule;
 
     [SetUp]
     public void SetUp()
     {
         trophyRoomConnector = Substitute.For<ITrophyRoomConnector>();
-        trophyRoomModule = new TrophyRoomModule(trophyRoomConnector);
+        clock = Substitute.For<IClock>();
+        trophyRoomModule = new TrophyRoomModule(trophyRoomConnector, clock);
     }
 
     [Test]
@@ -595,6 +612,20 @@ public class TrophyRoomModuleTests
 
         Assert.AreEqual(TrophyClaimState.Claimed, trophyRoomModule.SelectedTrophyClaimState);
         Assert.IsFalse(originalTrophy.isClaimed);
+    }
+
+    [Test]
+    public async Task SelectedTrophySecondsRemaining_WhenExpired_ReturnsZero()
+    {
+        List<TrophyData> fetchedTrophies = new() { new TrophyData { id = 1, expiresAtUnixSeconds = 100 } };
+        trophyRoomConnector.FetchTrophiesAsync(Arg.Any<CancellationToken>()).Returns(fetchedTrophies);
+        clock.UtcNowUnixSeconds.Returns(500);
+        await trophyRoomModule.LoadTrophiesAsync(CancellationToken.None);
+        trophyRoomModule.SelectTrophy(1);
+
+        long secondsRemaining = trophyRoomModule.SelectedTrophySecondsRemaining;
+
+        Assert.AreEqual(0, secondsRemaining);
     }
 }
 ```

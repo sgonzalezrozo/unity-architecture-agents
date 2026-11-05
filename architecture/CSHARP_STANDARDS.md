@@ -136,7 +136,13 @@ With `addressables`, load large textures and audio through it, and always releas
 
 ## Tests
 
-- Required for logic in Models and Modules: happy path, edge cases, errors.
-- Views and Controllers hold no logic, so they rely on manual QA.
-- NUnit, Arrange-Act-Assert, one concern per test. Mock Connectors with NSubstitute.
-- Writing the test first is encouraged, not mandatory.
+| ID | Rule |
+|---|---|
+| `TEST-01` | Anything that can be unit tested MUST have unit tests: Models, Modules, pure C# classes, data conversions and calculations. |
+| `TEST-02` | Tests MUST cover the happy path, edge cases and errors. |
+| `TEST-03` | Logic that can't be tested where it is MUST move to a testable class. It usually belongs in a Model. |
+| `TEST-04` | A bug fix MUST include a test that fails without the fix. |
+| `TEST-05` | Tests MUST be deterministic: no real time, randomness, network or dependence on run order. Fake them through interfaces. |
+| `TEST-06` | Views and Controllers hold no logic, so they rely on manual QA. If one needs a test, that signals misplaced logic. |
+
+Use NUnit and Arrange-Act-Assert, with one concern per test. Mock Connectors with NSubstitute. Name tests `{Method}_{Condition}_{Result}`. Writing the test first is encouraged, not mandatory.

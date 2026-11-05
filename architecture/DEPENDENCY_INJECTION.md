@@ -69,6 +69,7 @@ namespace Client.TrophyRoom
         public override void InstallBindings()
         {
             Bind<ITrophyRoomConnector>().To<TrophyRoomConnector>().AsSingle();
+            Bind<IClock>().To<SystemClock>().AsSingle();
             Bind<TrophyRoomModule>().AsSingle();
         }
     }
