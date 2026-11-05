@@ -8,11 +8,10 @@ Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 
 | Term | Definition |
 |---|---|
-| **Model** | Class that owns state and business rules. Pure C# by default |
+| **Model** | Class that owns state and business rules. Pure C# with a container, or a MonoBehaviour in the scene or prefab without one |
 | **Module** | Model that wraps a feature's backend access. See [Backend integration](BACKEND_INTEGRATION.md) |
-| **Cell Model** | MonoBehaviour Model on a list cell prefab |
+| **Cell Model** | MonoBehaviour Model on a list cell prefab, in every configuration |
 | **Connector** | Stateless class that performs backend calls |
-| **Composition root** | Class that creates and assigns objects when there is no container. See [Optional packages](OPTIONAL_PACKAGES.md#composition-root) |
 | **View** | MonoBehaviour that reads Models and renders |
 | **Controller** | MonoBehaviour that converts one input into one Model command |
 | **Query** | Read-only member. Changes no state |
@@ -32,11 +31,11 @@ Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 | Layer | Serialized field | Assigned `internal` field | `GetComponentInParent` | Constructor |
 |---|---|---|---|---|
 | **Pure C# Model** | No | No | No | Yes |
-| **Cell Model** | No | Yes | No | No |
-| **View** | Rendering components, state roots, config values | Models | Cell Model | No |
-| **Controller** | Config values | Models | Cell Model | No |
+| **Cell Model** | No | Yes, with a container | No | No |
+| **View** | Rendering components, state roots, config values | Models, with a container | Cell Model. Any Model without a container | No |
+| **Controller** | Config values | Models, with a container | Cell Model. Any Model without a container | No |
 
-A container or a composition root assigns the `internal` fields. `Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
+A container assigns the `internal` fields. Without one, Models live in the scene or prefab: see [Optional packages](OPTIONAL_PACKAGES.md#model-in-the-scene-or-prefab). `Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
 
 ## Model rules
 
@@ -65,7 +64,7 @@ public class LivesModel
 
 | ID | Rule |
 |---|---|
-| `MODEL-01` | A Model MUST be pure C#, unless it is a Cell Model. |
+| `MODEL-01` | With a container, a Model MUST be pure C#, unless it is a Cell Model. Without one, a Model is a MonoBehaviour in the scene or prefab. |
 | `MODEL-02` | A method MUST be a query or a command, not both. `Try*` is the accepted exception. |
 | `MODEL-03` | A command MUST validate its input and ignore invalid calls. Business rules MUST NOT live in a Controller. |
 | `MODEL-04` | Commands MAY take parameters. Events MUST NOT (`UA0004`). |
@@ -144,7 +143,7 @@ For the `BaseClickController` form, see [Optional packages](OPTIONAL_PACKAGES.md
 | `event Action<int> OnScoreChanged` | `event Action OnScoreChanged`, then read `scoreModel.Score` | `ARCH-04` |
 | `public Action OnChanged { get; set; }` | `public event Action OnChanged;` | `MODEL-05` |
 | `model.OnSelected?.Invoke()` in a Controller | `model.SelectItem(itemId)` | `ARCH-04` |
-| `view.Initialize(model)` | Assigned `internal` field | `UA0006` |
+| `view.Initialize(model)` | Injected field, or `GetComponentInParent` without a container | `UA0006` |
 | `parentView.Show(data)` or `itemViews[i].Render()` | The child View reads its own Model | `VIEW-03` |
 | `view.RefreshButton.onClick += ...` | A Controller implementing `IPointerClickHandler` | `ARCH-05` |
 | `if (model.State == Active) model.Buy();` in a Controller | `model.Buy()` validates internally | `CTRL-03` |

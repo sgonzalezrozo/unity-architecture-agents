@@ -46,7 +46,7 @@ Input event → Controller → Model command → state change → parameterless 
 | Clicks, visual states, tabs, lists, layouts | [UI patterns](architecture/UI_PATTERNS.md) |
 | Any dependency on a package, or code that differs by package | [Optional packages](architecture/OPTIONAL_PACKAGES.md) |
 | New feature or screen, file location, naming, prefab hierarchy | [Feature structure](architecture/FEATURE_STRUCTURE.md) |
-| Reference acquisition, composition roots, Fast IoC bindings | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) |
+| Reference acquisition, Fast IoC bindings | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) |
 | Backend calls | [Backend integration](architecture/BACKEND_INTEGRATION.md) |
 | C# style, performance, async, logging, tests | [C# standards](architecture/CSHARP_STANDARDS.md) |
 | Task process, checklist, Definition of Done, Git | [Agent workflow](architecture/AGENT_WORKFLOW.md) |

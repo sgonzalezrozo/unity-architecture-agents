@@ -7,7 +7,7 @@ All notable changes to this project are documented in this file.
 ### Added
 
 - Roslyn analyzers for the mechanical rules in the checklist.
-- `OPTIONAL_PACKAGES.md`, with capability detection, a composition root, and list and navigation forms for projects without the packages.
+- `OPTIONAL_PACKAGES.md`, with capability detection, Models in the scene or prefab, and list and navigation forms for projects without the packages.
 - Stable rule IDs, RFC 2119 keywords and the enforcement of each invariant.
 - `ARCH-07` and the `DET` rules: anything that can be deterministic must be.
 - `ARCH-08` and the `TEST` rules: anything that can be unit tested must be.

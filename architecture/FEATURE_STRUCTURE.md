@@ -47,7 +47,7 @@ A very large screen may use subfolders by section (`Tabs/`, `Members/`), never b
 | `{Feature}Module.cs` | Pure C# Model that wraps the feature's backend connection ([Backend integration](BACKEND_INTEGRATION.md)) |
 | `I{Feature}Connector.cs`, `{Feature}Connector.cs` | Connector interface and implementation |
 | `{Feature}Data.cs` | Data classes from the backend |
-| `{Feature}Installer.cs` | Fast IoC bindings, or `{Feature}CompositionRoot.cs` without a container ([Dependency injection](DEPENDENCY_INJECTION.md)) |
+| `{Feature}Installer.cs` | Fast IoC bindings. Not needed without a container ([Dependency injection](DEPENDENCY_INJECTION.md)) |
 | `ScreenDefinition` asset(s) | With `screenSystem`. One if the feature has a single screen. If there are several, see below |
 
 ### Multi-screen features

@@ -30,7 +30,7 @@ Also set `otherContainer = true` if the project uses another dependency injectio
 
 | Need | Package form | Unity form |
 |---|---|---|
-| Reference a Model | `fastIoC`: injected `internal` field | [Composition root](#composition-root) assigns an `internal` field |
+| Reference a Model | `fastIoC`: pure C# Model, injected `internal` field | [Model in the scene or prefab](#model-in-the-scene-or-prefab), found with `GetComponentInParent` |
 | Click input | `uiFoundations`: subclass of `BaseClickController` | `MonoBehaviour, IPointerClickHandler` |
 | Raycast target | `uiFoundations`: `BaseClickController`, a transparent `Graphic` | Transparent `Image` on the input GameObject |
 | Disable clicks | `uiFoundations`: `Interactable = false` | Disable the input GameObject, or place it in an inactive state |
@@ -44,32 +44,90 @@ If `otherContainer = true`, use that container's injection in place of the `fast
 
 The examples in this repository use this profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. Apply this mapping to adapt them.
 
-## Composition root
+## Model in the scene or prefab
 
-Without a container, a composition root creates Models and assigns them. It is the only class that MAY reference Views and Controllers, and it holds no logic.
+Without a container, a Model is a MonoBehaviour that already exists in the scene or in a prefab, such as one loaded with Addressables. Nothing creates it at runtime. Views and Controllers on the same prefab find it once and cache it.
+
+```
+LivesScreen.prefab [LivesModel]
+├── RemainingLivesText (TextMeshProUGUI) [LivesView]
+└── LoseLifeInput (Image: alpha 0) [LoseLifeController]
+```
 
 ```csharp
-[DefaultExecutionOrder(-1000)]
-public class LivesScreenCompositionRoot : MonoBehaviour
+public class LivesModel : MonoBehaviour
 {
-    [SerializeField] private LivesView livesView;
-    [SerializeField] private LoseLifeController loseLifeController;
+    private const int MAX_LIVES = 3;
+
+    public event Action OnLivesChanged;
+
+    private int remainingLives = MAX_LIVES;
+
+    public int RemainingLives => remainingLives;
+
+    public void LoseLife()
+    {
+        if (remainingLives == 0)
+            return;
+
+        remainingLives--;
+        OnLivesChanged?.Invoke();
+    }
+}
+
+public class LivesView : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI remainingLivesText;
+
+    private LivesModel livesModel;
 
     private void Awake()
     {
-        LivesModel livesModel = new();
+        livesModel = GetComponentInParent<LivesModel>();
+    }
 
-        livesView.livesModel = livesModel;
-        loseLifeController.livesModel = livesModel;
+    private void OnEnable()
+    {
+        livesModel.OnLivesChanged += RenderRemainingLives;
+        RenderRemainingLives();
+    }
+
+    private void OnDisable()
+    {
+        livesModel.OnLivesChanged -= RenderRemainingLives;
+    }
+
+    private void RenderRemainingLives()
+    {
+        remainingLivesText.text = livesModel.RemainingLives.ToString();
+    }
+}
+
+public class LoseLifeController : MonoBehaviour, IPointerClickHandler
+{
+    private LivesModel livesModel;
+
+    private void Awake()
+    {
+        livesModel = GetComponentInParent<LivesModel>();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        livesModel.LoseLife();
     }
 }
 ```
 
 | ID | Rule |
 |---|---|
-| `ROOT-01` | The root MUST run before the objects it wires. Use `[DefaultExecutionOrder]`. |
-| `ROOT-02` | Static singletons and service locators MUST NOT replace a composition root. |
-| `ROOT-03` | Models shared by several screens MUST be created by a root that outlives those screens. |
+| `ROOT-01` | The Model MUST sit on the same GameObject or a parent of the Views and Controllers that use it. |
+| `ROOT-02` | Views and Controllers MUST get it with `GetComponentInParent<TModel>()` in `Awake`, and cache it. Static singletons and service locators MUST NOT replace this. |
+| `ROOT-03` | The Model MUST set its initial state in field initializers. A View's `OnEnable` can run before the Model's `Awake`. |
+| `ROOT-04` | A Model is still a Model: it MUST NOT reference a View, a Controller or a non-Model component. |
+| `ROOT-05` | Unit test it in EditMode with `new GameObject().AddComponent<TModel>()`. |
+
+A project that wants pure C# Models without a container MAY use a composition root: a class that creates them and assigns the `internal` fields. It holds no logic, and it runs first with `[DefaultExecutionOrder]`.
 
 ## List without RecyclableScroller
 
