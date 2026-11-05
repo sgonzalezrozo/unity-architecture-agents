@@ -31,6 +31,8 @@ Strict MVC. Code that violates an invariant is incorrect even if it compiles and
 | `ARCH-04` | State flows by pull. If A references B, A reads from B and B never sends data to A. Events MUST have no parameters: they signal a change, and the listener reads the Model. | `UA0004` |
 | `ARCH-05` | `Selectable` components MUST NOT be used: `Button`, `Toggle`, `Slider` and `Dropdown` combine View and Controller. Controllers implement `IPointer*` and `IDrag*` interfaces. `TMP_InputField` is the only exception. | `UA0005` |
 | `ARCH-06` | Feature code and the prefabs built from it share a folder. Source art does not. | Review |
+| `ARCH-07` | Anything that can be deterministic MUST be. Prefer a deterministic tool to agent judgment, and keep runtime logic reproducible. See [Determinism](architecture/AGENT_WORKFLOW.md#determinism). | `verify.sh`, review |
+| `ARCH-08` | Anything that can be unit tested MUST have unit tests. Logic that can't be tested where it is MUST move to where it can. See [Tests](architecture/CSHARP_STANDARDS.md#tests). | `verify.sh`, review |
 
 ```
 Input event → Controller → Model command → state change → parameterless event → View reads Model → View renders

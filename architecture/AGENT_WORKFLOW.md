@@ -42,6 +42,20 @@ Agents MUST ask before:
 
 Never fill a gap with a guess presented as fact. If you assumed something, say so.
 
+## Determinism
+
+Agent output varies between runs. A deterministic tool gives the same result every time, so it MUST carry the work whenever it can.
+
+| ID | Rule |
+|---|---|
+| `DET-01` | If a compiler, analyzer, test, script or generator can decide something, the agent MUST use that tool and MUST NOT rely on its own judgment. |
+| `DET-02` | A claim about code MUST come from a tool result, not from memory. If no tool can check it, report it as unverified. |
+| `DET-03` | Mechanical work repeated across files SHOULD become a script or generator, and the output SHOULD be reproducible. |
+| `DET-04` | A rule that can be checked mechanically SHOULD become an analyzer or a test, not only a sentence in a document. |
+| `DET-05` | Runtime logic MUST be reproducible: the same state and input produce the same result. |
+| `DET-06` | Models MUST NOT read time, randomness or external state directly. They MUST receive them through an interface, so tests control them. See [the example](examples/01_BACKEND_FEATURE_TROPHY_ROOM.md#services). |
+| `DET-07` | Logic MUST NOT depend on undefined order, such as `Dictionary` enumeration order or the Unity `Awake` order of unrelated objects. |
+
 ## Working in Unity
 
 - Do not hand-edit `.prefab`, `.unity`, `.asset` or `.meta` files. Describe the hierarchy with the [notation](FEATURE_STRUCTURE.md#screen-composition), plus the Inspector steps for the developer.
@@ -63,10 +77,12 @@ Run this before returning code. Item numbers are stable: the [analyzers](../anal
 6. Are assigned fields `internal`, with no attribute under Fast IoC, and everything else `private`?
 7. Is every file in the right folder, and is source art outside the feature?
 8. Are there lambdas, LINQ, `var`, `?.` on Unity objects, or hardcoded text?
+9. Could a deterministic tool have decided this? Does a Model read time or randomness directly?
+10. Is everything that can be unit tested covered by a test?
 
 ## Reporting back
 
-State what changed, how it was verified, and what was not verified. If you could not compile or run the code, say so.
+State what changed, which tool verified it, and what wasn't verified. If you couldn't compile or run the code, say so.
 
 ## Definition of Done
 
@@ -74,7 +90,8 @@ State what changed, how it was verified, and what was not verified. If you could
 
 - [ ] Follows `AGENTS.md` and the checklist above
 - [ ] Compiles with no new warnings
-- [ ] Existing tests pass; new Model and Module logic has tests
+- [ ] Existing tests pass, and everything that can be unit tested has tests
+- [ ] A bug fix includes a test that fails without the fix
 - [ ] No unused code, no debug logs
 
 **UI changes**

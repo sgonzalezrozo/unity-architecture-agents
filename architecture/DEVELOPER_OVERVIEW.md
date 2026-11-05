@@ -225,7 +225,7 @@ public void Process(List<ItemData> items)
 
 **Tests**
 
-Model and Module logic has tests: NUnit, Arrange-Act-Assert, one concern per test. Views and Controllers have no logic to test.
+Anything that can be unit tested has tests: NUnit, Arrange-Act-Assert, one concern per test. Models don't read time or randomness directly, so tests can control them. Views and Controllers have no logic to test.
 
 ## 8. Where files go
 
@@ -250,4 +250,5 @@ Assets/Client/TrophyRoom/
 - [ ] Every method 15 lines or fewer, every class 200 or fewer, 3 parameters at most?
 - [ ] Class layout in the right order?
 - [ ] Subscriptions and tokens cleaned up?
-- [ ] New Model logic tested?
+- [ ] Everything that can be unit tested covered?
+- [ ] Could a deterministic tool have decided this?
