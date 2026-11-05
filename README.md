@@ -20,6 +20,7 @@ These are the rules and examples I give assistants such as Claude Code, Copilot 
 | [UI patterns](architecture/UI_PATTERNS.md) | Clickable elements, visual states, tabs, lists and layouts |
 | [C# standards](architecture/CSHARP_STANDARDS.md) | Style, performance, async, logging and tests |
 | [Examples](architecture/examples) | Three complete features with invented names: Trophy Room, Settings and Inventory |
+| [Templates](templates) | `.editorconfig`, Copilot instructions and a Rider AI Assistant rule |
 
 ## How the process scales
 
@@ -59,7 +60,24 @@ If `.ai/` is empty, run `git submodule update --init`.
 
 Keep rules that only apply to one project in that project's root `AGENTS.md`.
 
-To get the latest version later, run this and commit the result:
+### Copilot, Rider and code style
+
+These tools only read files from fixed paths in your project, so copy the ones you use:
+
+```bash
+cp .ai/templates/.editorconfig .
+mkdir -p .github .aiassistant/rules
+cp .ai/templates/copilot-instructions.md .github/
+cp .ai/templates/rider-project-rule.md .aiassistant/rules/project.md
+```
+
+Commit these copies in your project. In Rider, set the rule's type to **Always**.
+
+`.editorconfig` covers formatting, `var`, braces and naming in Rider and Visual Studio. It doesn't stop Unity from compiling.
+
+### Updating
+
+To get the latest version, run this and commit the result:
 
 ```bash
 git submodule update --remote .ai
@@ -68,6 +86,10 @@ git submodule update --remote .ai
 ## Project status
 
 The rules assume the [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller) and [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) packages. `BaseClickController`, `ViewStateMachine` and `BaseStartScene` aren't published yet.
+
+## Changelog
+
+See the [changelog](CHANGELOG.md).
 
 ## License
 
