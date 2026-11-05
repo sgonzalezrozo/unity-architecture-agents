@@ -56,4 +56,4 @@ Complete examples (copy from these first):
 
 These are project or package types (the `com.sgonzalezrozo.*` packages). Their documented surface is in the linked docs. For anything else, read the source or ask. Never guess a method name.
 
-`BaseClickController`, `ViewStateMachine`, `RecyclableScrollRect`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenSystem`, `ScreenDefinition`, `IScreenShow`, `IPrefabInstantiator`, `BaseStartScene`, and the localization system.
+`BaseClickController`, `ViewStateMachine`, `RecyclableScrollRect`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenSystem`, `ScreenDefinition`, `IScreenShow`, and `IPrefabInstantiator`.
