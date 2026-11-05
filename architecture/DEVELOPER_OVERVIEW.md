@@ -6,7 +6,7 @@ The architecture and the code style are mandatory. Packages such as Fast IoC are
 
 ## 1. Philosophy
 
-We use MVC, strictly. These rules are not preferences: code that breaks them is wrong even if it works.
+We use MVC, strictly, in game code. Packages and tools don't have to follow it. These rules are not preferences: game code that breaks them is wrong even if it works.
 
 1. **Knowledge goes one way.** Views and Controllers know Models. Models know only Models. Nobody knows a View or a Controller.
 2. **Models own the truth.** All data and all state live in Models.
@@ -63,7 +63,7 @@ public class LivesModel : MonoBehaviour
 - Commands change state and validate themselves. Queries read it. A method is one or the other.
 - Commands may take parameters. **Events never do.**
 - One responsibility. More than about 5 commands means: check whether to split it.
-- When no common parent can exist, or the Model must persist, it is pure C# and injected. That is the exception. Scroller cells count, because idle cells wait in a pool outside the screen. Without a container, use a singleton.
+- When no common parent can exist, or the Model must persist, it is pure C# and injected. That is the exception. Without a container, use a singleton.
 - Models outside MVC are created by the container, and no View or Controller uses them.
 
 ### View

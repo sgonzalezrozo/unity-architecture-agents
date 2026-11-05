@@ -8,7 +8,7 @@ Tabs filter one list, and a details panel renders the selection. All state is lo
 
 Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping).
 
-`InventoryModel` is injected because its cells reference it, and pooled cells have no common parent with the screen (`ROOT-09`). A list whose cells need only their own data can keep its Model on the screen root.
+`InventoryModel` is injected because this example's cells receive it through `IInjectableForChildren`.
 
 ## Hierarchy
 
