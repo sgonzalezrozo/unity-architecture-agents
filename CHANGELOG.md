@@ -7,7 +7,7 @@ All notable changes to this project are documented in this file.
 ### Added
 
 - Roslyn analyzers for the mechanical rules in the checklist.
-- `OPTIONAL_PACKAGES.md`, with capability detection, Models in the scene or prefab, and list and navigation forms for projects without the packages.
+- `OPTIONAL_PACKAGES.md`, with capability detection, and list and navigation forms for projects without the packages.
 - Stable rule IDs, RFC 2119 keywords and the enforcement of each invariant.
 - `ARCH-07` and the `DET` rules: anything that can be deterministic must be.
 - `ARCH-08` and the `TEST` rules: anything that can be unit tested must be.
@@ -15,6 +15,7 @@ All notable changes to this project are documented in this file.
 ### Changed
 
 - **Breaking:** Fast IoC, Recyclable Scroller, Screen System and UI Foundations are optional. The architecture and code style stay mandatory.
+- Models sit on a common parent of their Views and Controllers. Injection is the exception, for Models with no common parent or that persist.
 - Examples use `IPointerClickHandler` and `GameObject` state roots.
 - The analyzers apply Fast IoC rules only when Fast IoC is in the compilation.
 - **Breaking:** Renamed documents, the `Services And definitions` folder to `Services`, and `Actions` GameObjects to `{Action}Input`.

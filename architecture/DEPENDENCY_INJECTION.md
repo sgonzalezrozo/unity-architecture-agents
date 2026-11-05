@@ -2,22 +2,23 @@
 
 **Load when:** writing bindings or installers, or getting a reference.
 
-The way a View or Controller gets a Model depends on the project. In every case, it MUST NOT use a static singleton or a service locator.
+Most Views and Controllers don't use injection: they find a Model on a common parent. Injection is for the cases in [Where a Model lives](MVC.md#where-a-model-lives). A static singleton or a service locator MUST NOT be used in any case.
 
-| Capability | Mechanism |
+| Capability | Mechanism for injected Models |
 |---|---|
 | `fastIoC` | Injected `internal` fields. The rest of this document applies |
 | `otherContainer` | That container's injection |
-| Neither | [Model in the scene or prefab](OPTIONAL_PACKAGES.md#model-in-the-scene-or-prefab), found with `GetComponentInParent` |
+| Neither | Ask (`ROOT-07`) |
 
 ## Reference acquisition
 
 | Class | How |
 |---|---|
-| MonoBehaviour, with a container | `internal` field |
-| MonoBehaviour, without a container | `GetComponentInParent<TModel>()`, cached once |
-| Pure C# class | Constructor |
+| View or Controller, Model on a common parent | `GetComponentInParent<TModel>()`, cached once |
+| View or Controller, no common parent or persistent Model | `internal` field |
 | Inside a list cell | `GetComponentInParent<TCellModel>()`, cached once |
+| MonoBehaviour Model, Model outside MVC | `internal` field |
+| Pure C# class | Constructor |
 
 ```csharp
 public class TrophyCountView : MonoBehaviour

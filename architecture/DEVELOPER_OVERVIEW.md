@@ -35,10 +35,10 @@ The only other exception: a feature's **Module**, a Model that wraps its backend
 
 ### Model
 
-Pure C#. Holds state, applies rules, announces changes. Knows nothing about Unity UI.
+A MonoBehaviour on a common parent of its Views and Controllers, even a root GameObject of the scene. Holds state, applies rules, announces changes. Knows nothing about Unity UI.
 
 ```csharp
-public class LivesModel
+public class LivesModel : MonoBehaviour
 {
     private const int MAX_LIVES = 3;
 
@@ -63,7 +63,8 @@ public class LivesModel
 - Commands change state and validate themselves. Queries read it. A method is one or the other.
 - Commands may take parameters. **Events never do.**
 - One responsibility. More than about 5 commands means: check whether to split it.
-- Only list cells are MonoBehaviour Models, because the scroller needs them on the prefab.
+- When no common parent can exist, or the Model must persist, it is pure C# and injected. That is the exception.
+- Models outside MVC are created by the container, and no View or Controller uses them.
 
 ### View
 
@@ -74,7 +75,12 @@ public class LivesView : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI remainingLivesText;
 
-    internal LivesModel livesModel;
+    private LivesModel livesModel;
+
+    private void Awake()
+    {
+        livesModel = GetComponentInParent<LivesModel>();
+    }
 
     private void OnEnable()
     {
@@ -105,7 +111,12 @@ A MonoBehaviour that turns one input into one command.
 ```csharp
 public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 {
-    internal LivesModel livesModel;
+    private LivesModel livesModel;
+
+    private void Awake()
+    {
+        livesModel = GetComponentInParent<LivesModel>();
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -123,7 +134,7 @@ public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 
 | | How |
 |---|---|
-| MonoBehaviour | With Fast IoC, an injected `internal` field. Without a container, the Model lives in the scene or prefab: use `GetComponentInParent`, cached once |
+| View or Controller | `GetComponentInParent`, cached once. An injected `internal` field only when no common parent can exist or the Model must persist |
 | Pure C# class | Constructor |
 | Inside a list cell | `GetComponentInParent<CellModel>()`, cached once |
 
