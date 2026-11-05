@@ -49,7 +49,7 @@ namespace UnityArchitecture.Analyzers
         public static readonly DiagnosticDescriptor FieldVisibility = Create(
             "UA0008",
             "A MonoBehaviour field has the wrong shape",
-            "Field {0} on a MonoBehaviour must be private, or internal with no attribute when it's injected.");
+            "Field {0} on a MonoBehaviour must be private or internal. With Fast IoC, an internal field has no attribute.");
 
         public static readonly DiagnosticDescriptor Lambda = Create(
             "UA0009",

@@ -1,37 +1,187 @@
 # Optional packages
 
-**Load when:** writing click handling or visual states.
+**Load when:** generating code that depends on a package.
 
-These rules work with plain Unity APIs. An optional package changes the implementation, never the architecture.
+Packages change the implementation. The [architecture](../AGENTS.md#architecture-invariants), the [MVC layer rules](MVC.md) and the [C# standards](CSHARP_STANDARDS.md) stay mandatory in every configuration.
 
 ## Capability detection
 
-Run this once per task, before generating UI code:
+Run this once per task. Read `Packages/manifest.json`, and set each capability from `dependencies`:
 
-1. Read `Packages/manifest.json`.
-2. If `dependencies` contains `com.sgonzalezrozo.ui-foundations`, set `uiFoundations = true`.
-3. Otherwise, set `uiFoundations = false`.
+| Capability | `true` when `dependencies` contains |
+|---|---|
+| `fastIoC` | `com.sgonzalezrozo.fast-ioc` |
+| `recyclableScroller` | `com.sgonzalezrozo.recyclable-scroller` |
+| `screenSystem` | `com.sgonzalezrozo.screen-system` |
+| `uiFoundations` | `com.sgonzalezrozo.ui-foundations` |
+| `addressables` | `com.unity.addressables` |
+
+Also set `otherContainer = true` if the project uses another dependency injection container, such as Zenject or VContainer. Check the manifest and the existing code.
 
 | ID | Rule |
 |---|---|
-| `OPT-01` | If `uiFoundations = false`, code MUST NOT reference the `UIFoundations` namespace. |
-| `OPT-02` | If `uiFoundations = true`, new code SHOULD use the package. |
-| `OPT-03` | Code MUST NOT add the package without approval. See [When to ask](AGENT_WORKFLOW.md#when-to-ask). |
+| `OPT-01` | Code MUST NOT reference a package whose capability is `false`. |
+| `OPT-02` | If a capability is `true`, new code SHOULD use that package. |
+| `OPT-03` | An agent MUST NOT add a package without approval. See [When to ask](AGENT_WORKFLOW.md#when-to-ask). |
 | `OPT-04` | Match the code around the change. Don't mix both forms in one feature. |
-
-The examples in this repository use plain Unity APIs. Apply the mapping below when `uiFoundations = true`.
+| `OPT-05` | No configuration may break an `ARCH` rule or the C# standards. |
 
 ## Mapping
 
-| Need | `uiFoundations = false` | `uiFoundations = true` |
+| Need | Package form | Unity form |
 |---|---|---|
-| Click input | `MonoBehaviour, IPointerClickHandler` | Subclass of `BaseClickController` |
-| Click handler | `public void OnPointerClick(PointerEventData eventData)` | `protected override void OnClick()` |
-| Raycast target | Transparent `Image` on the input GameObject | `BaseClickController`, which is a transparent `Graphic` |
-| Disable clicks | Disable the input GameObject or put it in an inactive state | `Interactable = false` |
-| Cache a cell Model in a Controller | `Awake()` | `protected override bool InitializeController()` |
-| Mutually exclusive looks | View with one `GameObject` root per state | `ViewStateMachine` |
-| Change the look | `SetActive` on each root | `SetState(string stateName)` |
+| Reference a Model | `fastIoC`: injected `internal` field | [Composition root](#composition-root) assigns an `internal` field |
+| Click input | `uiFoundations`: subclass of `BaseClickController` | `MonoBehaviour, IPointerClickHandler` |
+| Raycast target | `uiFoundations`: `BaseClickController`, a transparent `Graphic` | Transparent `Image` on the input GameObject |
+| Disable clicks | `uiFoundations`: `Interactable = false` | Disable the input GameObject, or place it in an inactive state |
+| Mutually exclusive looks | `uiFoundations`: `ViewStateMachine.SetState(stateName)` | View with one `GameObject` root per state |
+| Dynamic list | `recyclableScroller`: `RecyclableScrollRect<T>` | [`ScrollRect` with reused cells](#list-without-recyclablescroller) |
+| Screen shown | `screenSystem`: `IScreenShow.OnScreenShown()` | Controller `OnEnable`, on the screen root |
+| Open a screen | `screenSystem`: `ScreenSystem` API | [Navigation Model](#navigation-without-screensystem) |
+| Load a large asset | `addressables`: release the handle | Direct reference or `Resources` |
+
+If `otherContainer = true`, use that container's injection in place of the `fastIoC` form. Keep every other rule.
+
+The examples in this repository use this profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. Apply this mapping to adapt them.
+
+## Composition root
+
+Without a container, a composition root creates Models and assigns them. It is the only class that MAY reference Views and Controllers, and it holds no logic.
+
+```csharp
+[DefaultExecutionOrder(-1000)]
+public class LivesScreenCompositionRoot : MonoBehaviour
+{
+    [SerializeField] private LivesView livesView;
+    [SerializeField] private LoseLifeController loseLifeController;
+
+    private void Awake()
+    {
+        LivesModel livesModel = new();
+
+        livesView.livesModel = livesModel;
+        loseLifeController.livesModel = livesModel;
+    }
+}
+```
+
+| ID | Rule |
+|---|---|
+| `ROOT-01` | The root MUST run before the objects it wires. Use `[DefaultExecutionOrder]`. |
+| `ROOT-02` | Static singletons and service locators MUST NOT replace a composition root. |
+| `ROOT-03` | Models shared by several screens MUST be created by a root that outlives those screens. |
+
+## List without RecyclableScroller
+
+The list View keeps one Cell Model per item and reuses them. It references the Cell Model, never a cell View (`VIEW-03`).
+
+Keep the cell prefab's root inactive, so the cell receives its Model before `OnEnable`.
+
+```csharp
+public class InventoryListView : MonoBehaviour
+{
+    [SerializeField] private InventoryCellModel inventoryCellPrefab;
+    [SerializeField] private RectTransform itemContainer;
+
+    internal InventoryModel inventoryModel;
+
+    private readonly List<InventoryCellModel> itemCells = new();
+
+    private void OnEnable()
+    {
+        inventoryModel.OnVisibleItemsChanged += RenderVisibleItems;
+        RenderVisibleItems();
+    }
+
+    private void OnDisable()
+    {
+        inventoryModel.OnVisibleItemsChanged -= RenderVisibleItems;
+    }
+
+    private void RenderVisibleItems()
+    {
+        IReadOnlyList<InventoryItemData> visibleItems = inventoryModel.VisibleItems;
+
+        CreateMissingCells(visibleItems.Count);
+
+        for (int i = 0; i < itemCells.Count; i++)
+            RenderCell(itemCells[i], i, visibleItems);
+    }
+
+    private void CreateMissingCells(int requiredCellCount)
+    {
+        while (itemCells.Count < requiredCellCount)
+        {
+            InventoryCellModel itemCell = Instantiate(inventoryCellPrefab, itemContainer);
+            itemCell.inventoryModel = inventoryModel;
+            itemCells.Add(itemCell);
+        }
+    }
+
+    private static void RenderCell(InventoryCellModel itemCell, int index, IReadOnlyList<InventoryItemData> visibleItems)
+    {
+        bool hasItem = index < visibleItems.Count;
+
+        if (hasItem)
+            itemCell.Data = visibleItems[index];
+
+        itemCell.gameObject.SetActive(hasItem);
+    }
+}
+```
+
+This creates one cell per item, so it fits short lists. A long list needs virtualization: ask before adding a package.
+
+## Navigation without ScreenSystem
+
+A Model owns the current screen, and a View renders it. A Controller starts a load from `OnEnable`, because the screen root activates each time it is shown.
+
+```csharp
+public enum GameScreen { Home, Inventory }
+
+public class NavigationModel
+{
+    public event Action OnCurrentScreenChanged;
+
+    private GameScreen currentScreen = GameScreen.Home;
+
+    public GameScreen CurrentScreen => currentScreen;
+
+    public void OpenScreen(GameScreen screen)
+    {
+        if (currentScreen == screen)
+            return;
+
+        currentScreen = screen;
+        OnCurrentScreenChanged?.Invoke();
+    }
+}
+
+public class ScreenStackView : MonoBehaviour
+{
+    [SerializeField] private GameObject homeRoot;
+    [SerializeField] private GameObject inventoryRoot;
+
+    internal NavigationModel navigationModel;
+
+    private void OnEnable()
+    {
+        navigationModel.OnCurrentScreenChanged += RenderCurrentScreen;
+        RenderCurrentScreen();
+    }
+
+    private void OnDisable()
+    {
+        navigationModel.OnCurrentScreenChanged -= RenderCurrentScreen;
+    }
+
+    private void RenderCurrentScreen()
+    {
+        homeRoot.SetActive(navigationModel.CurrentScreen == GameScreen.Home);
+        inventoryRoot.SetActive(navigationModel.CurrentScreen == GameScreen.Inventory);
+    }
+}
+```
 
 ## Click Controller
 

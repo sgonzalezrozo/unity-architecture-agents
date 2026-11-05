@@ -6,7 +6,7 @@ Two screens share one Module. `MainRoom` lists trophies. `DetailsTrophy` renders
 
 **Demonstrates:** folder layout, Module, Connector, load states, recyclable list, async command, timer, tests.
 
-Code uses plain Unity APIs. If `uiFoundations = true`, apply [Optional packages](../OPTIONAL_PACKAGES.md). Screen navigation is omitted because that API is [not specified yet](../FEATURE_STRUCTURE.md#modals-and-navigation).
+Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping). Screen navigation is omitted because that API is [not specified yet](../FEATURE_STRUCTURE.md#modals-and-navigation).
 
 ## Files
 

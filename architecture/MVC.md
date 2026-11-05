@@ -12,6 +12,7 @@ Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 | **Module** | Model that wraps a feature's backend access. See [Backend integration](BACKEND_INTEGRATION.md) |
 | **Cell Model** | MonoBehaviour Model on a list cell prefab |
 | **Connector** | Stateless class that performs backend calls |
+| **Composition root** | Class that creates and assigns objects when there is no container. See [Optional packages](OPTIONAL_PACKAGES.md#composition-root) |
 | **View** | MonoBehaviour that reads Models and renders |
 | **Controller** | MonoBehaviour that converts one input into one Model command |
 | **Query** | Read-only member. Changes no state |
@@ -28,14 +29,14 @@ Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 
 ## Reference acquisition
 
-| Layer | Serialized field | Injected `internal` field | `GetComponentInParent` | Constructor |
+| Layer | Serialized field | Assigned `internal` field | `GetComponentInParent` | Constructor |
 |---|---|---|---|---|
 | **Pure C# Model** | No | No | No | Yes |
 | **Cell Model** | No | Yes | No | No |
 | **View** | Rendering components, state roots, config values | Models | Cell Model | No |
 | **Controller** | Config values | Models | Cell Model | No |
 
-`Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
+A container or a composition root assigns the `internal` fields. `Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
 
 ## Model rules
 
@@ -132,7 +133,7 @@ public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 | `CTRL-03` | A Controller MUST NOT check state or hold a rule. |
 | `CTRL-04` | A Controller MAY convert raw input to a domain value, such as a pointer position to 0 to 1. |
 | `CTRL-05` | A Controller MUST NOT serialize a reference to a Unity object (`UA0003`). |
-| `CTRL-06` | A Controller MAY implement `IScreenShow`, because a screen lifecycle event is input. |
+| `CTRL-06` | A screen lifecycle event is input. A Controller MAY start work from it. See [the mapping](OPTIONAL_PACKAGES.md#mapping). |
 
 For the `BaseClickController` form, see [Optional packages](OPTIONAL_PACKAGES.md).
 
@@ -143,7 +144,7 @@ For the `BaseClickController` form, see [Optional packages](OPTIONAL_PACKAGES.md
 | `event Action<int> OnScoreChanged` | `event Action OnScoreChanged`, then read `scoreModel.Score` | `ARCH-04` |
 | `public Action OnChanged { get; set; }` | `public event Action OnChanged;` | `MODEL-05` |
 | `model.OnSelected?.Invoke()` in a Controller | `model.SelectItem(itemId)` | `ARCH-04` |
-| `view.Initialize(model)` | Injected `internal` field | `UA0006` |
+| `view.Initialize(model)` | Assigned `internal` field | `UA0006` |
 | `parentView.Show(data)` or `itemViews[i].Render()` | The child View reads its own Model | `VIEW-03` |
 | `view.RefreshButton.onClick += ...` | A Controller implementing `IPointerClickHandler` | `ARCH-05` |
 | `if (model.State == Active) model.Buy();` in a Controller | `model.Buy()` validates internally | `CTRL-03` |

@@ -7,6 +7,12 @@ namespace UnityArchitecture.Analyzers
     internal static class UnityTypes
     {
         private const string BASE_CLICK_CONTROLLER = "UIFoundations.BaseClickController";
+        private const string FAST_IOC_BINDING_RECORDER = "FastIoC.API.BindingRecorder";
+
+        public static bool HasFastIoC(Compilation compilation)
+        {
+            return compilation.GetTypeByMetadataName(FAST_IOC_BINDING_RECORDER) != null;
+        }
 
         public static bool DerivesFrom(ITypeSymbol type, string baseTypeName)
         {

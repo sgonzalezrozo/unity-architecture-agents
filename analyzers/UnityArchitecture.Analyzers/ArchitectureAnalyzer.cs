@@ -150,10 +150,19 @@ namespace UnityArchitecture.Analyzers
             if (!UnityTypes.IsMonoBehaviour(field.ContainingType))
                 return;
 
-            bool isInternal = field.DeclaredAccessibility == Accessibility.Internal;
-            bool isValid = field.DeclaredAccessibility == Accessibility.Private || (isInternal && field.GetAttributes().Length == 0);
-            if (!isValid)
+            if (!HasValidVisibility(field, UnityTypes.HasFastIoC(context.Compilation)))
                 context.ReportDiagnostic(Diagnostic.Create(Rules.FieldVisibility, field.Locations[0], field.Name));
+        }
+
+        private static bool HasValidVisibility(IFieldSymbol field, bool hasFastIoC)
+        {
+            if (field.DeclaredAccessibility == Accessibility.Private)
+                return true;
+
+            if (field.DeclaredAccessibility != Accessibility.Internal)
+                return false;
+
+            return !hasFastIoC || field.GetAttributes().Length == 0;
         }
 
         private static bool IsSerializedReference(IFieldSymbol field)
@@ -202,6 +211,9 @@ namespace UnityArchitecture.Analyzers
 
         private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
         {
+            if (!UnityTypes.HasFastIoC(context.Compilation))
+                return;
+
             ITypeSymbol attribute = context.SemanticModel.GetTypeInfo(context.Node, context.CancellationToken).Type;
             if (attribute?.Name == "InjectAttribute")
                 context.ReportDiagnostic(Diagnostic.Create(Rules.InjectAttribute, context.Node.GetLocation()));

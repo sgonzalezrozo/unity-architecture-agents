@@ -7,18 +7,17 @@ Normative entry point for coding agents working on a Unity project. Read this fi
 - **Source of truth:** each rule has one home. If two documents disagree, the document routed for that topic wins, and the conflict is a defect to report.
 - **Human summary:** [Developer overview](architecture/DEVELOPER_OVERVIEW.md).
 
-## Runtime stack
+## What is mandatory
 
-| Dependency | Status | Used for |
-|---|---|---|
-| Unity, C#, uGUI, TextMeshPro | Required | Engine and UI |
-| FastIoC | Required | Dependency injection |
-| RecyclableScroller | Required for dynamic lists | List virtualization |
-| ScreenSystem | Required for screen navigation | Screen lifecycle |
-| Addressables | Required for large assets | Asset loading |
-| UI Foundations | **Optional** | Click and visual state helpers |
+| Scope | Status |
+|---|---|
+| Architecture invariants in this file | **Mandatory in every project** |
+| [MVC](architecture/MVC.md) layer rules | **Mandatory in every project** |
+| [C# standards](architecture/CSHARP_STANDARDS.md): code form, style and format | **Mandatory in every project** |
+| Unity, C#, uGUI, TextMeshPro | Required runtime |
+| Fast IoC, Recyclable Scroller, Screen System, UI Foundations, Addressables | **Optional.** They change the implementation, never the architecture |
 
-Resolve optional dependencies before writing UI code: see [Optional packages](architecture/OPTIONAL_PACKAGES.md).
+Run [capability detection](architecture/OPTIONAL_PACKAGES.md#capability-detection) before generating code.
 
 ## Architecture invariants
 
@@ -43,9 +42,9 @@ Input event → Controller → Model command → state change → parameterless 
 |---|---|
 | Any Model, View or Controller | [MVC](architecture/MVC.md) |
 | Clicks, visual states, tabs, lists, layouts | [UI patterns](architecture/UI_PATTERNS.md) |
-| Use of `BaseClickController` or `ViewStateMachine` | [Optional packages](architecture/OPTIONAL_PACKAGES.md) |
+| Any dependency on a package, or code that differs by package | [Optional packages](architecture/OPTIONAL_PACKAGES.md) |
 | New feature or screen, file location, naming, prefab hierarchy | [Feature structure](architecture/FEATURE_STRUCTURE.md) |
-| Bindings, installers, reference acquisition | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) |
+| Reference acquisition, composition roots, Fast IoC bindings | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) |
 | Backend calls | [Backend integration](architecture/BACKEND_INTEGRATION.md) |
 | C# style, performance, async, logging, tests | [C# standards](architecture/CSHARP_STANDARDS.md) |
 | Task process, checklist, Definition of Done, Git | [Agent workflow](architecture/AGENT_WORKFLOW.md) |
@@ -58,8 +57,12 @@ Read the closest example before generating a feature:
 | [Custom input](architecture/examples/02_CUSTOM_INPUT_SETTINGS.md) | `Toggle` and `Slider` replacements, reusable prefab, drag input |
 | [Filtered list](architecture/examples/03_FILTERED_LIST_INVENTORY.md) | Tabs, filtered list, selection, details panel, no backend |
 
+## Completion
+
+A task is complete only when it passes the [pre-response checklist](architecture/AGENT_WORKFLOW.md#pre-response-checklist) and the [Definition of Done](architecture/AGENT_WORKFLOW.md#definition-of-done). Report what was verified and what wasn't.
+
 ## API policy
 
 MUST NOT invent an API. The documented surface of project packages is in the linked documents. For anything else, read the package source or ask. Verify each symbol below before use:
 
-`RecyclableScrollRect<T>`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenSystem`, `ScreenDefinition`, `IScreenShow`, `IPrefabInstantiator`.
+`RecyclableScrollRect<T>`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenSystem`, `ScreenDefinition`, `IScreenShow`, `IPrefabInstantiator`, `BaseClickController`, `ViewStateMachine`.

@@ -6,7 +6,7 @@ One toggle prefab is reused for every on/off setting. Adding a setting takes one
 
 **Demonstrates:** reusable prefab driven by config values, visual state roots, drag input.
 
-Code uses plain Unity APIs. If `uiFoundations = true`, apply [Optional packages](../OPTIONAL_PACKAGES.md).
+Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping).
 
 ## Hierarchy
 

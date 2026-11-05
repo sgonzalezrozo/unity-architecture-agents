@@ -16,6 +16,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 ";
 
+        private const string FAST_IOC = "namespace FastIoC.API { public abstract class BindingRecorder { } } ";
+
         [Theory]
         [InlineData("UA0001", "public class ShopView : MonoBehaviour { } public class ShopModel { private ShopView view; }")]
         [InlineData("UA0001", "public class ShopController { } public class ShopModel { private List<ShopController> items; }")]
@@ -29,9 +31,9 @@ using UnityEngine.UI;
         [InlineData("UA0005", "public class Screen : MonoBehaviour { private Button button; }")]
         [InlineData("UA0005", "public class Screen : MonoBehaviour { private Toggle toggle; }")]
         [InlineData("UA0006", "public class ShopView : MonoBehaviour { public void Initialize(int count) { } }")]
-        [InlineData("UA0007", "public class InjectAttribute : Attribute { } public class Screen : MonoBehaviour { [Inject] internal int value; }")]
+        [InlineData("UA0007", FAST_IOC + "public class InjectAttribute : Attribute { } public class Screen : MonoBehaviour { [Inject] internal int value; }")]
         [InlineData("UA0008", "public class Screen : MonoBehaviour { public int value; }")]
-        [InlineData("UA0008", "public class Screen : MonoBehaviour { [SerializeField] internal int value; }")]
+        [InlineData("UA0008", FAST_IOC + "public class Screen : MonoBehaviour { [SerializeField] internal int value; }")]
         [InlineData("UA0009", "public class Shop { private void Run() { Action action = () => { }; } }")]
         [InlineData("UA0009", "public class Shop { private void Run() { Action action = delegate { }; } }")]
         [InlineData("UA0010", "public class Shop { private bool Run(List<int> items) { return items.Any(); } }")]
@@ -54,6 +56,8 @@ using UnityEngine.UI;
         [InlineData("public class Form : MonoBehaviour { private TMP_InputField input; }")]
         [InlineData("public class Shop : MonoBehaviour { public const int MAX = 3; public static int Count; }")]
         [InlineData("public class Shop { public void Initialize(int count) { } }")]
+        [InlineData("public class InjectAttribute : Attribute { } public class Screen : MonoBehaviour { [Inject] internal int value; }")]
+        [InlineData("public class Screen : MonoBehaviour { [SerializeField] internal int value; }")]
         [InlineData("public class Shop { private void Run(List<int> items) { for (int i = 0; i < items.Count; i++) { } } }")]
         [InlineData("public class Shop { private void Run(string text) { int? length = text?.Length; } }")]
         public async Task AllowsValidCode(string source)

@@ -21,10 +21,10 @@ Feature: PlayerStats
 Location: Assets/Client/PlayerStats/
 New files: list
 Changed files: list
-FastIoC scope: scene "PlayerStats", priority 200
+Reference wiring: Fast IoC scene "PlayerStats", priority 200
 Tests: PlayerStatsModelTests
 New dependencies: none
-Optional packages: uiFoundations = true | false
+Capabilities: fastIoC, recyclableScroller, screenSystem, uiFoundations
 Open questions: list
 ```
 
@@ -59,8 +59,8 @@ Run this before returning code. Item numbers are stable: the [analyzers](../anal
 3. Does any Controller change a visual, hold a rule, or serialize a reference?
 4. Does any event have parameters? Is anything pushed that could be pulled?
 5. Is there a `Button`, `Toggle`, `Slider`, `Dropdown`, `onClick` or `Initialize(model)`?
-   Is `UIFoundations` referenced while `uiFoundations = false`?
-6. Are injected fields `internal` with no attribute, and everything else `private`?
+   Does the code reference a package whose capability is `false`?
+6. Are assigned fields `internal`, with no attribute under Fast IoC, and everything else `private`?
 7. Is every file in the right folder, and is source art outside the feature?
 8. Are there lambdas, LINQ, `var`, `?.` on Unity objects, or hardcoded text?
 

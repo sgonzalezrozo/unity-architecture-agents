@@ -18,7 +18,7 @@ These are the rules I give coding agents such as Claude Code, Copilot and Rider'
 | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) | Bindings, installers and references |
 | [Backend integration](architecture/BACKEND_INTEGRATION.md) | How features talk to a backend |
 | [UI patterns](architecture/UI_PATTERNS.md) | Clickable elements, visual states, tabs, lists and layouts |
-| [Optional packages](architecture/OPTIONAL_PACKAGES.md) | How an agent detects UI Foundations and adapts its code |
+| [Optional packages](architecture/OPTIONAL_PACKAGES.md) | How an agent detects optional packages and adapts its code |
 | [C# standards](architecture/CSHARP_STANDARDS.md) | Style, performance, async, logging and tests |
 | [Examples](architecture/examples) | Three complete features with invented names: a backend feature, custom input and a filtered list |
 | [Templates](templates) | `.editorconfig`, Copilot instructions and a Rider AI Assistant rule |
@@ -87,7 +87,7 @@ git submodule update --remote .ai
 
 ## Project status
 
-This is version `0.1.0`. The rules assume the [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller) and [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) packages. [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) is optional: without it, the rules use Unity's own event interfaces.
+This is version `0.1.0`. The architecture and the code style are mandatory. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller), [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) and [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) are optional: agents detect them, and use plain Unity forms when they're missing.
 
 ## Changelog
 
