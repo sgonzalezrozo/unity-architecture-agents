@@ -30,7 +30,7 @@ Also set `otherContainer = true` if the project uses another dependency injectio
 
 | Need | Package form | Unity form |
 |---|---|---|
-| Reference a Model | `fastIoC`: pure C# Model, injected `internal` field | [Model in the scene or prefab](#model-in-the-scene-or-prefab), found with `GetComponentInParent` |
+| Model with no common parent, or that persists | `fastIoC`: pure C#, injected `internal` field. See [Where a Model lives](MVC.md#where-a-model-lives) | Ask (`ROOT-07`) |
 | Click input | `uiFoundations`: subclass of `BaseClickController` | `MonoBehaviour, IPointerClickHandler` |
 | Raycast target | `uiFoundations`: `BaseClickController`, a transparent `Graphic` | Transparent `Image` on the input GameObject |
 | Disable clicks | `uiFoundations`: `Interactable = false` | Disable the input GameObject, or place it in an inactive state |
@@ -44,98 +44,11 @@ If `otherContainer = true`, use that container's injection in place of the `fast
 
 The examples in this repository use this profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. Apply this mapping to adapt them.
 
-## Model in the scene or prefab
-
-Without a container, a Model is a MonoBehaviour that already exists in the scene or in a prefab, such as one loaded with Addressables. Nothing creates it at runtime. Views and Controllers on the same prefab find it once and cache it.
-
-```
-LivesScreen.prefab [LivesModel]
-├── RemainingLivesText (TextMeshProUGUI) [LivesView]
-└── LoseLifeInput (Image: alpha 0) [LoseLifeController]
-```
-
-```csharp
-public class LivesModel : MonoBehaviour
-{
-    private const int MAX_LIVES = 3;
-
-    public event Action OnLivesChanged;
-
-    private int remainingLives = MAX_LIVES;
-
-    public int RemainingLives => remainingLives;
-
-    public void LoseLife()
-    {
-        if (remainingLives == 0)
-            return;
-
-        remainingLives--;
-        OnLivesChanged?.Invoke();
-    }
-}
-
-public class LivesView : MonoBehaviour
-{
-    [SerializeField] private TextMeshProUGUI remainingLivesText;
-
-    private LivesModel livesModel;
-
-    private void Awake()
-    {
-        livesModel = GetComponentInParent<LivesModel>();
-    }
-
-    private void OnEnable()
-    {
-        livesModel.OnLivesChanged += RenderRemainingLives;
-        RenderRemainingLives();
-    }
-
-    private void OnDisable()
-    {
-        livesModel.OnLivesChanged -= RenderRemainingLives;
-    }
-
-    private void RenderRemainingLives()
-    {
-        remainingLivesText.text = livesModel.RemainingLives.ToString();
-    }
-}
-
-public class LoseLifeController : MonoBehaviour, IPointerClickHandler
-{
-    private LivesModel livesModel;
-
-    private void Awake()
-    {
-        livesModel = GetComponentInParent<LivesModel>();
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        livesModel.LoseLife();
-    }
-}
-```
-
-| ID | Rule |
-|---|---|
-| `ROOT-01` | The Model MUST sit on the same GameObject or a parent of the Views and Controllers that use it. |
-| `ROOT-02` | Views and Controllers MUST get it with `GetComponentInParent<TModel>()` in `Awake`, and cache it. Static singletons and service locators MUST NOT replace this. |
-| `ROOT-03` | The Model MUST set its initial state in field initializers. A View's `OnEnable` can run before the Model's `Awake`. |
-| `ROOT-04` | A Model is still a Model: it MUST NOT reference a View, a Controller or a non-Model component. |
-| `ROOT-05` | Unit test it in EditMode with `new GameObject().AddComponent<TModel>()`. |
-
-A project that wants pure C# Models without a container MAY use a composition root: a class that creates them and assigns the `internal` fields. It holds no logic, and it runs first with `[DefaultExecutionOrder]`.
-
 ## List without RecyclableScroller
 
 The list View keeps one Cell Model per item and reuses them. It references the Cell Model, never a cell View (`VIEW-03`).
 
 Keep the cell prefab's root inactive, so the cell receives its data before `OnEnable`. Each cell is created under the list, so a Cell Model that needs `InventoryModel` finds it with `GetComponentInParent` in `Awake`.
-
-This form has no container. With Fast IoC, use an injected `internal` field instead, and assign it on each cell after `Instantiate`.
 
 ```csharp
 public class InventoryListView : MonoBehaviour
@@ -199,7 +112,7 @@ This creates one cell per item, so it fits short lists. A long list needs virtua
 
 A Model owns the current screen, and a View renders it. A Controller starts a load from `OnEnable`, because the screen root activates each time it is shown.
 
-This form has no container. With Fast IoC, the Model is pure C# and the View uses an injected `internal` field.
+If navigation must persist across scenes, the Model is pure C# and injected (`ROOT-07`).
 
 ```csharp
 public enum GameScreen { Home, Inventory }
@@ -255,7 +168,7 @@ public class ScreenStackView : MonoBehaviour
 
 ## Click Controller
 
-These forms differ only in the base class. The `internal` field assumes a container. Without one, get the Model as in [Model in the scene or prefab](#model-in-the-scene-or-prefab).
+These forms differ only in the base class. The `internal` field shows an injected Model. Otherwise, use `GetComponentInParent`: see [Where a Model lives](MVC.md#where-a-model-lives).
 
 Plain Unity:
 
@@ -289,7 +202,7 @@ public class LoseLifeController : BaseClickController
 
 ## Visual state View
 
-These forms differ only in how the state is rendered. The `internal` field assumes a container. Without one, get the Model as in [Model in the scene or prefab](#model-in-the-scene-or-prefab).
+These forms differ only in how the state is rendered. The `internal` field shows an injected Model. Otherwise, use `GetComponentInParent`: see [Where a Model lives](MVC.md#where-a-model-lives).
 
 Plain Unity:
 

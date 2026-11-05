@@ -8,9 +8,10 @@ Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 
 | Term | Definition |
 |---|---|
-| **Model** | Class that owns state and business rules. Pure C# with a container, or a MonoBehaviour in the scene or prefab without one |
+| **Model** | Class that owns state and business rules. See [Where a Model lives](#where-a-model-lives) |
+| **Outside-MVC Model** | Model created by the container that no View or Controller uses |
 | **Module** | Model that wraps a feature's backend access. See [Backend integration](BACKEND_INTEGRATION.md) |
-| **Cell Model** | MonoBehaviour Model on a list cell prefab, in every configuration |
+| **Cell Model** | MonoBehaviour Model on a list cell prefab |
 | **Connector** | Stateless class that performs backend calls |
 | **View** | MonoBehaviour that reads Models and renders |
 | **Controller** | MonoBehaviour that converts one input into one Model command |
@@ -26,21 +27,50 @@ Implements `ARCH-01` to `ARCH-04` from [AGENTS.md](../AGENTS.md).
 | **View** | Yes | No | Yes | No | No | No |
 | **Controller** | Yes | No | No | Yes | No | No |
 
+## Where a Model lives
+
+This applies to every project, with or without a container. Use the first row that fits.
+
+| Order | Case | Where it lives | How a View or Controller gets it |
+|---|---|---|---|
+| 1 | Its Views and Controllers can share a parent | MonoBehaviour in the scene or prefab, on a common parent, even a root GameObject of the scene | `GetComponentInParent<TModel>()` |
+| 2 | They can't share a parent, or it must persist | Pure C#, created by the container | Injected `internal` field |
+| 3 | Outside MVC: no View or Controller uses it | Created by the container | It doesn't. Only Models reference it |
+
+```
+LivesScreen.prefab [LivesModel]
+├── RemainingLivesText (TextMeshProUGUI) [LivesView]
+└── LoseLifeInput (Image: alpha 0) [LoseLifeController]
+```
+
+| ID | Rule |
+|---|---|
+| `ROOT-01` | A Model MUST sit on a common parent of the Views and Controllers that use it, or on the same GameObject, whenever one can exist. Prefabs loaded with Addressables count. |
+| `ROOT-02` | Those Views and Controllers MUST get it with `GetComponentInParent<TModel>()` in `Awake`, and cache it. Static singletons and service locators MUST NOT replace this. |
+| `ROOT-03` | A MonoBehaviour Model MUST set its initial state in field initializers. A View's `OnEnable` can run before the Model's `Awake`. |
+| `ROOT-04` | A MonoBehaviour Model is still a Model: it MUST NOT reference a View, a Controller or a non-Model component. |
+| `ROOT-05` | Unit test a MonoBehaviour Model in EditMode with `new GameObject().AddComponent<TModel>()`. |
+| `ROOT-06` | Injection is the exception. A Model MUST NOT be injected into a View or Controller when a common parent can exist. |
+| `ROOT-07` | Without a container, a Model that needs row 2 or 3 MUST stop the task: ask, and don't add a singleton. See [When to ask](AGENT_WORKFLOW.md#when-to-ask). |
+| `ROOT-08` | Views and Controllers MUST NOT reference an Outside-MVC Model (row 3). |
+
+A project that wants pure C# Models without a container MAY use a composition root: a class that creates them and assigns the `internal` fields. It holds no logic, and it runs first with `[DefaultExecutionOrder]`.
+
 ## Reference acquisition
 
-| Layer | Serialized field | Assigned `internal` field | `GetComponentInParent` | Constructor |
+| Layer | Serialized field | Injected `internal` field | `GetComponentInParent` | Constructor |
 |---|---|---|---|---|
 | **Pure C# Model** | No | No | No | Yes |
-| **Cell Model** | No | Models, with a container | Parent Models, without a container | No |
-| **View** | Rendering components, state roots, config values | Models, with a container | Cell Model. Any Model without a container | No |
-| **Controller** | Config values | Models, with a container | Cell Model. Any Model without a container | No |
+| **MonoBehaviour Model** | No | Models | Parent Models | No |
+| **View** | Rendering components, state roots, config values | Models, row 2 only | Models | No |
+| **Controller** | Config values | Models, row 2 only | Models | No |
 
-A container assigns the `internal` fields. Without one, Models live in the scene or prefab: see [Optional packages](OPTIONAL_PACKAGES.md#model-in-the-scene-or-prefab). `Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
+`Initialize(model)` on a MonoBehaviour is method injection and MUST NOT be used (`UA0006`).
 
 ## Model rules
 
 ```csharp
-public class LivesModel
+public class LivesModel : MonoBehaviour
 {
     private const int MAX_LIVES = 3;
 
@@ -64,13 +94,13 @@ public class LivesModel
 
 | ID | Rule |
 |---|---|
-| `MODEL-01` | With a container, a Model MUST be pure C#, unless it is a Cell Model. Without one, a Model is a MonoBehaviour in the scene or prefab. |
+| `MODEL-01` | A Model MUST live where [Where a Model lives](#where-a-model-lives) says. |
 | `MODEL-02` | A method MUST be a query or a command, not both. `Try*` is the accepted exception. |
 | `MODEL-03` | A command MUST validate its input and ignore invalid calls. Business rules MUST NOT live in a Controller. |
 | `MODEL-04` | Commands MAY take parameters. Events MUST NOT (`UA0004`). |
 | `MODEL-05` | Events MUST use `public event Action OnSomethingChanged;`, in the past tense. |
 | `MODEL-06` | A Model MUST fire an event only when state changed. |
-| `MODEL-07` | A Model MAY subscribe to another Model. It MUST use a named method and unsubscribe in `Dispose()`. |
+| `MODEL-07` | A Model MAY subscribe to another Model. It MUST use a named method and unsubscribe in `OnDestroy()` on a MonoBehaviour, or `Dispose()` in pure C#. |
 | `MODEL-08` | A Model SHOULD have one responsibility. More than about 5 commands signals a split. |
 
 ## View rules
@@ -80,7 +110,12 @@ public class LivesView : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI remainingLivesText;
 
-    internal LivesModel livesModel;
+    private LivesModel livesModel;
+
+    private void Awake()
+    {
+        livesModel = GetComponentInParent<LivesModel>();
+    }
 
     private void OnEnable()
     {
@@ -116,7 +151,12 @@ Name rendering methods `Render{Subject}`.
 ```csharp
 public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 {
-    internal LivesModel livesModel;
+    private LivesModel livesModel;
+
+    private void Awake()
+    {
+        livesModel = GetComponentInParent<LivesModel>();
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -143,7 +183,7 @@ For the `BaseClickController` form, see [Optional packages](OPTIONAL_PACKAGES.md
 | `event Action<int> OnScoreChanged` | `event Action OnScoreChanged`, then read `scoreModel.Score` | `ARCH-04` |
 | `public Action OnChanged { get; set; }` | `public event Action OnChanged;` | `MODEL-05` |
 | `model.OnSelected?.Invoke()` in a Controller | `model.SelectItem(itemId)` | `ARCH-04` |
-| `view.Initialize(model)` | Injected field, or `GetComponentInParent` without a container | `UA0006` |
+| `view.Initialize(model)` | `GetComponentInParent`, or an injected field for row 2 | `UA0006` |
 | `parentView.Show(data)` or `itemViews[i].Render()` | The child View reads its own Model | `VIEW-03` |
 | `view.RefreshButton.onClick += ...` | A Controller implementing `IPointerClickHandler` | `ARCH-05` |
 | `if (model.State == Active) model.Buy();` in a Controller | `model.Buy()` validates internally | `CTRL-03` |

@@ -8,6 +8,8 @@ One toggle prefab is reused for every on/off setting. Adding a setting takes one
 
 Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping).
 
+This example injects its Model to show the Fast IoC form. A new feature MUST follow [Where a Model lives](../MVC.md#where-a-model-lives).
+
 ## Hierarchy
 
 ```

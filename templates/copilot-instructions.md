@@ -8,4 +8,4 @@ Non-negotiable, in case nothing else is loaded:
 - Events are `public event Action OnSomethingChanged;` with no parameters. Listeners pull from the Model.
 - No `Button`, `Toggle`, `Slider` or `Dropdown`. Controllers implement `IPointer*` interfaces.
 - Packages are optional. Before generating code, run capability detection from `.ai/architecture/OPTIONAL_PACKAGES.md`.
-- With a container, MonoBehaviours receive Models through `internal` fields. Without one, they cache them with `GetComponentInParent`. Pure C# classes use the constructor.
+- Models sit on a common parent of their Views and Controllers, which cache them with `GetComponentInParent`. Only a Model with no common parent, or one that persists, is injected through an `internal` field. Pure C# classes use the constructor.
