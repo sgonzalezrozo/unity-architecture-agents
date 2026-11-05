@@ -20,7 +20,7 @@ InventoryScreen
 │   │   │   └── ActiveLabel (TextMeshProUGUI)
 │   │   ├── InactiveRoot
 │   │   │   └── InactiveLabel (TextMeshProUGUI)
-│   │   └── SelectTabInput (Image: alpha 0) [SelectTabController]   inventoryTab = Weapons
+│   │   └── SelectTabController (Image: alpha 0) [SelectTabController]   inventoryTab = Weapons
 │   ├── ArmorTab (same, inventoryTab = Armor)
 │   └── ConsumablesTab (same, inventoryTab = Consumables)
 ├── ItemList [InventoryListView]
@@ -29,12 +29,12 @@ InventoryScreen
     ├── EmptyRoot
     └── SelectedItemRoot
         ├── ItemNameText (TextMeshProUGUI)
-        └── DropItemInput (Image: alpha 0) [DropItemController]
+        └── DropItemController (Image: alpha 0) [DropItemController]
 
 InventoryCell.prefab [InventoryCellModel, InventoryCellView]
 ├── ItemNameText (TextMeshProUGUI)
 ├── SelectedHighlight (Image)
-└── SelectItemInput (Image: alpha 0) [SelectItemController]
+└── SelectItemController (Image: alpha 0) [SelectItemController]
 ```
 
 The tabs filter one list, so no tab has its own content prefab.

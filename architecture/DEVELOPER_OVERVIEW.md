@@ -125,7 +125,7 @@ public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 }
 ```
 
-- One Controller per action, placed on an `{Action}Input` child of the element it acts on.
+- One Controller per action, placed on an `{Action}Controller` child of the element it acts on.
 - Implement `IPointerClickHandler`, `IPointerDownHandler`, `IDragHandler` and so on. If the project has UI Foundations, clicks can use `BaseClickController`: see [Optional packages](OPTIONAL_PACKAGES.md).
 - May convert a pointer position to a value. May not check state or decide anything.
 - No serialized references. A plain config value, such as which tab it opens, is allowed.

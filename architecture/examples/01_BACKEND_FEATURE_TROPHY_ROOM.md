@@ -264,7 +264,7 @@ TrophyCell.prefab [TrophyCellModel, TrophyCellView]
 ├── TrophyNameText (TextMeshProUGUI)
 ├── ClaimedBadge (Image)
 ├── SelectedHighlight (Image)
-└── SelectTrophyInput (Image: alpha 0) [SelectTrophyController]
+└── SelectTrophyController (Image: alpha 0) [SelectTrophyController]
 ```
 
 The Controller starts the load because a shown screen is input (`CTRL-06`). It owns the token (`BE-07`).
@@ -456,7 +456,7 @@ DetailsTrophy [DetailsTrophyView]
 ├── SecondsRemainingText (TextMeshProUGUI)
 └── ClaimArea [ClaimAreaView]
     ├── ClaimableRoot
-    │   └── ClaimTrophyInput (Image: alpha 0) [ClaimTrophyController]
+    │   └── ClaimTrophyController (Image: alpha 0) [ClaimTrophyController]
     ├── ClaimingRoot
     │   └── ClaimingSpinner (Image)
     └── ClaimedRoot

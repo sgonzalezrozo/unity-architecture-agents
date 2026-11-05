@@ -40,7 +40,7 @@ This applies to every project, with or without a container. Use the first row th
 ```
 LivesScreen.prefab [LivesModel]
 ├── RemainingLivesText (TextMeshProUGUI) [LivesView]
-└── LoseLifeInput (Image: alpha 0) [LoseLifeController]
+└── LoseLifeController (Image: alpha 0) [LoseLifeController]
 ```
 
 | ID | Rule |

@@ -68,7 +68,7 @@ Only for things used by two or more features that belong to none of them: reusab
 | Feature Module | `{Feature}Module` | `TrophyRoomModule` |
 | View | `{Name}View` | `TrophyCellView` |
 | Controller | `{Action}Controller` | `ClaimTrophyController` |
-| Input GameObject | `{Action}Input` | `ClaimTrophyInput` |
+| Input GameObject | Same name as its Controller | `ClaimTrophyController` |
 | State root GameObject | `{State}Root` | `LoadingRoot` |
 | Rendering method | `Render{Subject}` | `RenderTrophyName` |
 | Data | `{Name}Data` | `TrophyData` |
@@ -84,7 +84,7 @@ Only for things used by two or more features that belong to none of them: reusab
 TrophyRoomMain [MainRoomLoadController, MainRoomStateView]
 ├── Header
 │   ├── TitleText (TextMeshProUGUI)
-│   └── CloseInput (Image: alpha 0) [CloseController]
+│   └── CloseController (Image: alpha 0) [CloseController]
 ├── Content (static elements, tab content or a scroller)
 └── Footer
 ```
