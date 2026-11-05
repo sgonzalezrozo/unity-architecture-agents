@@ -19,7 +19,7 @@ Assets/
 │   │   ├── DetailsTrophy/
 │   │   ├── DetailsTrophySnapshot/
 │   │   └── Services/
-│   ├── SeasonStore/
+│   ├── Store/
 │   ├── Inventory/
 │   ├── HomePage/
 │   └── Shared/
@@ -114,7 +114,7 @@ Popups are separate prefabs in the screen folder that uses them. A modal's state
 
 One rule already applies: nothing is pushed to a screen. If screen B needs the selected trophy, screen A sets it on a shared Model and B reads it there. The [backend example](examples/01_BACKEND_FEATURE_TROPHY_ROOM.md) does this with `TrophyRoomModule.SelectTrophy`.
 
-Scene transitions MUST go through one project scene loader, never `SceneManager` from feature code. Showing a menu screen is not the same as leaving a match scene.
+Scene transitions MUST go through one project scene loader, never `SceneManager` from feature code. Showing a menu screen is not the same as leaving a gameplay scene.
 
 ## Assembly definitions
 
