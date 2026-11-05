@@ -4,3 +4,7 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+# .NET build output
+bin/
+obj/
