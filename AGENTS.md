@@ -7,6 +7,10 @@ Normative entry point for coding agents working on a Unity project. Read this fi
 - **Source of truth:** each rule has one home. If two documents disagree, the document routed for that topic wins, and the conflict is a defect to report.
 - **Human summary:** [Developer overview](architecture/DEVELOPER_OVERVIEW.md).
 
+## Scope
+
+The architecture rules are for game code. Packages and tools, such as Recyclable Scroller, don't have to follow them, and how a tool works internally is not a violation.
+
 ## What is mandatory
 
 | Scope | Status |

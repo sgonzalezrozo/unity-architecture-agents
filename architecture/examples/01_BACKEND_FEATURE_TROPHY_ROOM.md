@@ -8,7 +8,7 @@ Two screens share one Module. `MainRoom` lists trophies. `DetailsTrophy` renders
 
 Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping). Screen navigation is omitted because that API is [not specified yet](../FEATURE_STRUCTURE.md#modals-and-navigation).
 
-`TrophyRoomModule` is injected because two screens and their pooled cells share it, with no common parent (row 2 in [Where a Model lives](../MVC.md#where-a-model-lives)).
+`TrophyRoomModule` is injected because two screens share it, with no common parent (row 2 in [Where a Model lives](../MVC.md#where-a-model-lives)).
 
 ## Files
 

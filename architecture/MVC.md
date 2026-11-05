@@ -53,8 +53,7 @@ LivesScreen.prefab [LivesModel]
 | `ROOT-06` | Injection is the exception. A Model MUST NOT be injected into a View or Controller when a common parent can exist. |
 | `ROOT-07` | Without a container, a Model in row 2 or 3 MUST be a pure C# singleton with a public constructor. Views and Controllers cache `TModel.Instance` in `Awake`. With a container, singletons MUST NOT be used. |
 | `ROOT-08` | Views and Controllers MUST NOT reference an Outside-MVC Model (row 3). |
-| `ROOT-09` | A Model that a Recyclable Scroller cell references is row 2. The scroller keeps idle cells in a pool outside the screen, so they have no common parent with it. |
-| `ROOT-10` | A test MUST create its own instance and MUST NOT use `TModel.Instance`, because static state carries over between tests. |
+| `ROOT-09` | A test MUST create its own instance and MUST NOT use `TModel.Instance`, because static state carries over between tests. |
 
 ```csharp
 public class CoinBalanceModel
