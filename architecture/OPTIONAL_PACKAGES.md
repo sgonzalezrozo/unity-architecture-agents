@@ -133,7 +133,9 @@ A project that wants pure C# Models without a container MAY use a composition ro
 
 The list View keeps one Cell Model per item and reuses them. It references the Cell Model, never a cell View (`VIEW-03`).
 
-Keep the cell prefab's root inactive, so the cell receives its Model before `OnEnable`.
+Keep the cell prefab's root inactive, so the cell receives its data before `OnEnable`. Each cell is created under the list, so a Cell Model that needs `InventoryModel` finds it with `GetComponentInParent` in `Awake`.
+
+This form has no container. With Fast IoC, use an injected `internal` field instead, and assign it on each cell after `Instantiate`.
 
 ```csharp
 public class InventoryListView : MonoBehaviour
@@ -141,9 +143,14 @@ public class InventoryListView : MonoBehaviour
     [SerializeField] private InventoryCellModel inventoryCellPrefab;
     [SerializeField] private RectTransform itemContainer;
 
-    internal InventoryModel inventoryModel;
-
     private readonly List<InventoryCellModel> itemCells = new();
+
+    private InventoryModel inventoryModel;
+
+    private void Awake()
+    {
+        inventoryModel = GetComponentInParent<InventoryModel>();
+    }
 
     private void OnEnable()
     {
@@ -170,9 +177,7 @@ public class InventoryListView : MonoBehaviour
     {
         while (itemCells.Count < requiredCellCount)
         {
-            InventoryCellModel itemCell = Instantiate(inventoryCellPrefab, itemContainer);
-            itemCell.inventoryModel = inventoryModel;
-            itemCells.Add(itemCell);
+            itemCells.Add(Instantiate(inventoryCellPrefab, itemContainer));
         }
     }
 
@@ -194,10 +199,12 @@ This creates one cell per item, so it fits short lists. A long list needs virtua
 
 A Model owns the current screen, and a View renders it. A Controller starts a load from `OnEnable`, because the screen root activates each time it is shown.
 
+This form has no container. With Fast IoC, the Model is pure C# and the View uses an injected `internal` field.
+
 ```csharp
 public enum GameScreen { Home, Inventory }
 
-public class NavigationModel
+public class NavigationModel : MonoBehaviour
 {
     public event Action OnCurrentScreenChanged;
 
@@ -220,7 +227,12 @@ public class ScreenStackView : MonoBehaviour
     [SerializeField] private GameObject homeRoot;
     [SerializeField] private GameObject inventoryRoot;
 
-    internal NavigationModel navigationModel;
+    private NavigationModel navigationModel;
+
+    private void Awake()
+    {
+        navigationModel = GetComponentInParent<NavigationModel>();
+    }
 
     private void OnEnable()
     {
@@ -242,6 +254,8 @@ public class ScreenStackView : MonoBehaviour
 ```
 
 ## Click Controller
+
+These forms differ only in the base class. The `internal` field assumes a container. Without one, get the Model as in [Model in the scene or prefab](#model-in-the-scene-or-prefab).
 
 Plain Unity:
 
@@ -274,6 +288,8 @@ public class LoseLifeController : BaseClickController
 `BaseClickController` derives from `Graphic`, so a Controller that cleans up in `OnDestroy` MUST use `protected override void OnDestroy()` and call `base.OnDestroy()`.
 
 ## Visual state View
+
+These forms differ only in how the state is rendered. The `internal` field assumes a container. Without one, get the Model as in [Model in the scene or prefab](#model-in-the-scene-or-prefab).
 
 Plain Unity:
 
