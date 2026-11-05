@@ -4,7 +4,11 @@
 
 ## Definition
 
-A feature is usually one main screen plus modal popups. It may have several screens the user navigates between.
+A feature is usually one main screen plus modal popups. It may have several screens the user navigates between. A feature is not a scope: see [Scopes](MVC.md#scopes).
+
+| ID | Rule |
+|---|---|
+| `FEAT-01` | A feature MUST NOT reference another feature's Views, Controllers or scope internals. It MAY read a Model that moved to a common parent or is injected. |
 
 ## Folders
 
@@ -98,12 +102,12 @@ TrophyRoomMain [MainRoomLoadController, MainRoomStateView]
 | `Name [ProjectType]` | GameObject with project MonoBehaviours |
 | `Name (UnityType) [ProjectType]` | GameObject with both |
 
-A MonoBehaviour Model sits on the screen root or another common parent. Pure C# Models never appear in a hierarchy, because they aren't on any GameObject.
+A MonoBehaviour Model sits on its scope root (`SCOPE-03`). Pure C# Models never appear in a hierarchy, because they aren't on any GameObject.
 
 Rules:
 
 - Separate static elements from dynamic ones. Dynamic content is either tab content or a scroller.
-- A screen has its Views at the root of the scope they render, or lower when a section is independent. Interactive elements carry their own Controller.
+- Each scope has its View at its root (`SCOPE-02`). Divide a large screen into scopes. Interactive elements carry their own Controller.
 - Screen prefabs have no Canvas of their own. They sit under an existing Canvas, which owns the `CanvasScaler`.
 
 ## Modals and navigation

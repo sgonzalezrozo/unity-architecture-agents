@@ -2,7 +2,7 @@
 
 **Load when:** writing bindings or installers, or getting a reference.
 
-Most Views and Controllers don't use injection: they find a Model on a common parent. Injection is for the cases in [Where a Model lives](MVC.md#where-a-model-lives). Without a container, those cases use a singleton (`ROOT-07`). A service locator MUST NOT be used in any case.
+Most Views and Controllers don't use injection: they find a Model on a common parent, even outside their scope (`SCOPE-05`). Injection is for the cases in [Where a Model lives](MVC.md#where-a-model-lives). Without a container, those cases use a singleton (`ROOT-07`). A service locator MUST NOT be used in any case.
 
 | Capability | Mechanism for injected Models |
 |---|---|
@@ -17,7 +17,7 @@ Most Views and Controllers don't use injection: they find a Model on a common pa
 | View or Controller, Model on a common parent | `GetComponentInParent<TModel>()`, cached once |
 | View or Controller, no common parent or persistent Model | `internal` field |
 | Inside a list cell | `GetComponentInParent<TCellModel>()`, cached once |
-| MonoBehaviour Model, Model outside MVC | `internal` field |
+| MonoBehaviour Model, Model outside MVC, configuration asset | `internal` field |
 | Pure C# class | Constructor |
 
 ```csharp

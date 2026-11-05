@@ -57,7 +57,7 @@ PurchaseArea [PurchaseStateView]
 
 ## Tabs
 
-Tab content is static: nested in the prefab at edit time, never instantiated at runtime.
+Tab content is static: nested in the prefab at edit time, never instantiated at runtime. Expensive content SHOULD load when its tab opens (`PERF-01`).
 
 ```
 InventoryScreen
@@ -181,6 +181,7 @@ public class ItemCellModel : MonoBehaviour, IInjectableForChildren, IRecyclableC
 | `LIST-02` | The `Data` setter MUST fire an event. A recycled cell can get data while active, so `OnEnable` alone would show stale content. This is the one accepted push, and it MUST stop at the Cell Model. |
 | `LIST-03` | Cell Views and Controllers MUST get the Cell Model with `GetComponentInParent<TCellModel>()` in `Awake`. |
 | `LIST-04` | Cells MUST NOT be instantiated by hand or call `Initialize(data)`. |
+| `LIST-05` | A Cell Model exists to serve its cell, so it MAY expose derived values for that cell's Views. This is the one exception to `ARCH-04`. |
 
 ### Scroller API
 

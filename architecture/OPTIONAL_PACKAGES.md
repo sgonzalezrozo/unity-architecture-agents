@@ -31,6 +31,7 @@ Also set `otherContainer = true` if the project uses another dependency injectio
 | Need | Package form | Unity form |
 |---|---|---|
 | Model with no common parent, or that persists | `fastIoC`: pure C#, injected `internal` field. See [Where a Model lives](MVC.md#where-a-model-lives) | Pure C# singleton (`ROOT-07`) |
+| Configuration asset for a Model | `fastIoC`: `Bind<T>().FromInstance("Path").AsSingle()`, injected `internal` field | Load it by address or path (`MODEL-10`) |
 | Click input | `uiFoundations`: subclass of `BaseClickController` | `MonoBehaviour, IPointerClickHandler` |
 | Raycast target | `uiFoundations`: `BaseClickController`, a transparent `Graphic` | Transparent `Image` on the input GameObject |
 | Disable clicks | `uiFoundations`: `Interactable = false` | Disable the input GameObject, or place it in an inactive state |
@@ -46,17 +47,15 @@ The examples in this repository use this profile: `fastIoC`, `recyclableScroller
 
 ## List without RecyclableScroller
 
-The list View keeps one Cell Model per item and reuses them. It references the Cell Model, never a cell View (`VIEW-03`).
-
-Keep the cell prefab's root inactive, so the cell receives its data before `OnEnable`. Each cell is created under the list, so a Cell Model that needs `InventoryModel` finds it with `GetComponentInParent` in `Awake`.
+The list View only creates cells and shows as many as there are items. It holds GameObjects, never a cell View (`VIEW-03`). Each cell finds the Model and pulls its own item by position, so no data is pushed (`ARCH-04`).
 
 ```csharp
 public class InventoryListView : MonoBehaviour
 {
-    [SerializeField] private InventoryCellModel inventoryCellPrefab;
+    [SerializeField] private GameObject inventoryCellPrefab;
     [SerializeField] private RectTransform itemContainer;
 
-    private readonly List<InventoryCellModel> itemCells = new();
+    private readonly List<GameObject> itemCells = new();
 
     private InventoryModel inventoryModel;
 
@@ -78,30 +77,47 @@ public class InventoryListView : MonoBehaviour
 
     private void RenderVisibleItems()
     {
-        IReadOnlyList<InventoryItemData> visibleItems = inventoryModel.VisibleItems;
-
-        CreateMissingCells(visibleItems.Count);
+        CreateMissingCells(inventoryModel.ItemCount);
 
         for (int i = 0; i < itemCells.Count; i++)
-            RenderCell(itemCells[i], i, visibleItems);
+            itemCells[i].SetActive(i < inventoryModel.ItemCount);
     }
 
     private void CreateMissingCells(int requiredCellCount)
     {
         while (itemCells.Count < requiredCellCount)
-        {
             itemCells.Add(Instantiate(inventoryCellPrefab, itemContainer));
-        }
+    }
+}
+
+public class InventoryCellView : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI itemNameText;
+
+    private InventoryModel inventoryModel;
+
+    private void Awake()
+    {
+        inventoryModel = GetComponentInParent<InventoryModel>();
     }
 
-    private static void RenderCell(InventoryCellModel itemCell, int index, IReadOnlyList<InventoryItemData> visibleItems)
+    private void OnEnable()
     {
-        bool hasItem = index < visibleItems.Count;
+        inventoryModel.OnVisibleItemsChanged += RenderItem;
+        RenderItem();
+    }
 
-        if (hasItem)
-            itemCell.Data = visibleItems[index];
+    private void OnDisable()
+    {
+        inventoryModel.OnVisibleItemsChanged -= RenderItem;
+    }
 
-        itemCell.gameObject.SetActive(hasItem);
+    private void RenderItem()
+    {
+        int itemIndex = transform.GetSiblingIndex();
+
+        if (itemIndex < inventoryModel.ItemCount)
+            itemNameText.text = inventoryModel.GetItem(itemIndex).displayName;
     }
 }
 ```
