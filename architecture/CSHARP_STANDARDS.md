@@ -1,8 +1,10 @@
 # C# standards
 
-`.editorconfig` covers formatting, `var`, braces and naming in Rider and Visual Studio. This document also covers what it cannot check: nothing in it stops Unity from compiling, so code review enforces the rest.
+**Load when:** writing or reviewing C#.
 
-Apply these to new code. Refactor old code only when asked.
+`.editorconfig` covers formatting in the editor but doesn't stop compilation. The [analyzers](../analyzers) fail the build for `var`, LINQ, lambdas and `?.` on Unity objects. Code review enforces the rest.
+
+Apply these rules to new code. Refactor old code only when asked.
 
 ## Naming
 
@@ -14,7 +16,7 @@ Apply these to new code. Refactor old code only when asked.
 | Events | `OnSomethingChanged`, past tense |
 | Async methods | Suffix `Async` |
 
-Method prefixes state intent: `Get` (query), `Set` (assign), `Is`/`Has`/`Can` (bool query), `Try` (may fail, returns bool), `Calculate` (computes), `Update`/`Refresh` (recomputes), `On` (event handler), `Validate` (throws if invalid).
+Method prefixes state intent: `Get` (query), `Set` (assign), `Is`/`Has`/`Can` (bool query), `Try` (may fail, returns bool), `Calculate` (computes), `Update` (recomputes), `Render` (View draws Model state), `On` (event handler), `Validate` (throws if invalid).
 
 ## Class layout
 

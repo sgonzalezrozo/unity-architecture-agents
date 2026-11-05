@@ -1,59 +1,65 @@
 # AGENTS.md
 
-Entry point for developers and AI assistants. Read this file completely, then open only the document that matches your task.
+Normative entry point for coding agents working on a Unity project. Read this file completely, then load only the documents the routing table selects for the task.
 
-Human developers: start with the [Development Bible](architecture/DEV_BIBLE.md), a one-file summary of everything below.
+- **Requirement keywords:** MUST, MUST NOT, SHOULD and MAY are used as defined in RFC 2119.
+- **Rule IDs:** every rule has a stable ID. Cite the ID when you report or discuss a violation.
+- **Source of truth:** each rule has one home. If two documents disagree, the document routed for that topic wins, and the conflict is a defect to report.
+- **Human summary:** [Developer overview](architecture/DEVELOPER_OVERVIEW.md).
 
-Each rule has one home. If two documents ever disagree, the document listed for that topic in [Where to read next](#where-to-read-next) wins, and the other one is a bug to fix.
+## Runtime stack
 
-## Stack
+| Dependency | Status | Used for |
+|---|---|---|
+| Unity, C#, uGUI, TextMeshPro | Required | Engine and UI |
+| FastIoC | Required | Dependency injection |
+| RecyclableScroller | Required for dynamic lists | List virtualization |
+| ScreenSystem | Required for screen navigation | Screen lifecycle |
+| Addressables | Required for large assets | Asset loading |
+| UI Foundations | **Optional** | Click and visual state helpers |
 
-- Unity, C#, uGUI, TextMeshPro
-- FastIoC for dependency injection (not Zenject)
-- RecyclableScroller for lists, ViewStateMachine for visual states, Addressables for large assets
-- Git flow: `feature/*` and `bugfix/*` branch from `develop`
+Resolve optional dependencies before writing UI code: see [Optional packages](architecture/OPTIONAL_PACKAGES.md).
 
-## Philosophy
+## Architecture invariants
 
-We use MVC, strictly. The rules below are not preferences; code that breaks them is wrong even if it works.
+Strict MVC. Code that violates an invariant is incorrect even if it compiles and runs.
 
-1. **Knowledge is one-way.**
-   - A Model knows only other Models.
-   - A View knows only Models, plus the Unity rendering components it displays.
-   - A Controller knows only Models, plus the Unity input interfaces it implements.
-   - Views and Controllers never know each other.
-2. **Models own data and state.** All of it. Views and Controllers hold no state beyond cached references.
-3. **Views render, Controllers receive input.** A View never handles input and never calls a command on a Model. A Controller never touches anything visual.
-4. **Pull, never push.** If A knows B, A takes what it needs from B. B never hands it over. Events therefore have no parameters: the event says "something changed", the listener reads the Model.
-5. **No Selectable components.** `Button`, `Toggle`, `Slider` and `Dropdown` are a View and a Controller in one component, so we do not use them. Controllers implement `IPointer*` / `IDrag*` interfaces instead. `TMP_InputField` is the only exception.
-6. **Everything for a feature lives together.** Code and the prefabs built from it share a folder. Art source files do not.
+| ID | Rule | Enforced by |
+|---|---|---|
+| `ARCH-01` | Dependencies are one-way. A Model MAY reference only Models. A View MAY reference only Models and rendering components. A Controller MAY reference only Models and input interfaces. Views and Controllers MUST NOT reference each other. | `UA0001` |
+| `ARCH-02` | Models own all data and state. Views and Controllers MUST hold no state beyond cached references. | Review |
+| `ARCH-03` | Views render and Controllers receive input. A View MUST NOT handle input or call a Model command. A Controller MUST NOT change anything visual. | `UA0002`, `UA0003`, review |
+| `ARCH-04` | State flows by pull. If A references B, A reads from B and B never sends data to A. Events MUST have no parameters: they signal a change, and the listener reads the Model. | `UA0004` |
+| `ARCH-05` | `Selectable` components MUST NOT be used: `Button`, `Toggle`, `Slider` and `Dropdown` combine View and Controller. Controllers implement `IPointer*` and `IDrag*` interfaces. `TMP_InputField` is the only exception. | `UA0005` |
+| `ARCH-06` | Feature code and the prefabs built from it share a folder. Source art does not. | Review |
 
 ```
-Input → Controller → Model → (event, no data) → View reads Model → View renders
+Input event → Controller → Model command → state change → parameterless event → View reads Model → View renders
 ```
 
-## Where to read next
+## Document routing
 
-| Task | Read |
+| Task | Load |
 |---|---|
 | Any Model, View or Controller | [MVC](architecture/MVC.md) |
-| New feature, new screen, modal, where a file goes, naming | [Feature structure](architecture/FEATURE_STRUCTURE.md) |
-| Bindings, installers, how a class gets its references | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) |
-| Anything that talks to the backend | [Backend](architecture/BACKEND.md) |
-| Clickable elements, visual states, tabs, lists, layouts | [UI patterns](architecture/UI_PATTERNS.md) |
+| Clicks, visual states, tabs, lists, layouts | [UI patterns](architecture/UI_PATTERNS.md) |
+| Use of `BaseClickController` or `ViewStateMachine` | [Optional packages](architecture/OPTIONAL_PACKAGES.md) |
+| New feature or screen, file location, naming, prefab hierarchy | [Feature structure](architecture/FEATURE_STRUCTURE.md) |
+| Bindings, installers, reference acquisition | [Dependency injection](architecture/DEPENDENCY_INJECTION.md) |
+| Backend calls | [Backend integration](architecture/BACKEND_INTEGRATION.md) |
 | C# style, performance, async, logging, tests | [C# standards](architecture/CSHARP_STANDARDS.md) |
-| Working as an AI assistant, Definition of Done, Git | [AI workflow](architecture/AI_WORKFLOW.md) |
+| Task process, checklist, Definition of Done, Git | [Agent workflow](architecture/AGENT_WORKFLOW.md) |
 
-Complete examples (copy from these first):
+Read the closest example before generating a feature:
 
-| Example | Shows |
+| Example | Demonstrates |
 |---|---|
-| [Trophy Room](architecture/examples/01_TROPHY_ROOM.md) | Real folder layout, Module, Connector, list, async action, timer, tests |
-| [Settings](architecture/examples/02_SETTINGS.md) | Replacing Toggle and Slider, one reusable prefab, drag input |
-| [Inventory](architecture/examples/03_INVENTORY.md) | Tabs, filtered list, selection, details panel, no backend |
+| [Backend feature](architecture/examples/01_BACKEND_FEATURE_TROPHY_ROOM.md) | Folder layout, Module, Connector, list, async command, timer, tests |
+| [Custom input](architecture/examples/02_CUSTOM_INPUT_SETTINGS.md) | `Toggle` and `Slider` replacements, reusable prefab, drag input |
+| [Filtered list](architecture/examples/03_FILTERED_LIST_INVENTORY.md) | Tabs, filtered list, selection, details panel, no backend |
 
-## Project APIs: never invent them
+## API policy
 
-These are project or package types (the `com.sgonzalezrozo.*` packages). Their documented surface is in the linked docs. For anything else, read the source or ask. Never guess a method name.
+MUST NOT invent an API. The documented surface of project packages is in the linked documents. For anything else, read the package source or ask. Verify each symbol below before use:
 
-`BaseClickController`, `ViewStateMachine`, `RecyclableScrollRect`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenSystem`, `ScreenDefinition`, `IScreenShow`, and `IPrefabInstantiator`.
+`RecyclableScrollRect<T>`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenSystem`, `ScreenDefinition`, `IScreenShow`, `IPrefabInstantiator`.

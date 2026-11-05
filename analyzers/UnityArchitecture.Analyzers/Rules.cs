@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 namespace UnityArchitecture.Analyzers
 {
     /// <summary>
-    /// The mechanical rules from the self-check in architecture/AI_WORKFLOW.md.
+    /// The mechanical rules from the checklist in architecture/AGENT_WORKFLOW.md.
     /// Every message says how to fix the problem, because agents act on it directly.
     /// </summary>
     internal static class Rules
@@ -34,7 +34,7 @@ namespace UnityArchitecture.Analyzers
         public static readonly DiagnosticDescriptor SelectableComponent = Create(
             "UA0005",
             "A Selectable component is used",
-            "{0} is a View and a Controller in one component. Use BaseClickController or IPointer* interfaces, with ViewStateMachine for visual states.");
+            "{0} is a View and a Controller in one component. Use a Controller with IPointerClickHandler or IPointerDownHandler. See architecture/UI_PATTERNS.md.");
 
         public static readonly DiagnosticDescriptor MethodInjection = Create(
             "UA0006",

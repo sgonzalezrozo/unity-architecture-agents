@@ -1,6 +1,6 @@
-# Backend
+# Backend integration
 
-Use this for every feature that talks to the backend. Complete code is in [Trophy Room](examples/01_TROPHY_ROOM.md).
+**Load when:** a feature calls the backend. Complete code: [Backend feature](examples/01_BACKEND_FEATURE_TROPHY_ROOM.md).
 
 ```
 Backend ← Connector ← Module → (event) → View reads Module
@@ -17,7 +17,7 @@ Backend ← Connector ← Module → (event) → View reads Module
 
 ## The Module
 
-A Module is a Model, so all Model rules apply. It has one exception: it is the only Model allowed to know a Connector.
+A Module is a Model, so all [Model rules](MVC.md#model-rules) apply. It is the only Model that MAY reference a Connector.
 
 There is one Module per feature, shared by all of that feature's screens. That is what lets several screens work on the same data.
 
@@ -32,13 +32,15 @@ Screen Models may read the Module and call its commands, like any Model-to-Model
 
 ## Rules
 
-- Backend data is never mutated. To apply a change, replace the entry with what the backend returned.
-- Store timestamps as Unix seconds and compute remaining time when read.
-- Each operation has a state a View can render. An empty list is a valid result, not a failure.
-- Prevent concurrent loads with the state itself: return early if already loading.
-- A cancelled operation is not a failure: return to the previous state and do not log an error.
-- Only Controllers start async commands, using `.Forget("Context")` and a `CancellationToken` they own.
-- Cancel and dispose that token source in `OnDestroy`.
+| ID | Rule |
+|---|---|
+| `BE-01` | Backend data MUST NOT be mutated. To apply a change, replace the entry with the backend's response. |
+| `BE-02` | Timestamps MUST be stored as Unix seconds, and remaining time computed when read. |
+| `BE-03` | Each operation MUST have a state a View can render. An empty list is a valid result, not a failure. |
+| `BE-04` | Concurrent loads MUST be prevented with the state itself: return early if already loading. |
+| `BE-05` | A cancelled operation is not a failure. Restore the previous state and log no error. |
+| `BE-06` | Only Controllers MAY start async commands, with `.Forget("Context")` and a `CancellationToken` they own. |
+| `BE-07` | The Controller MUST cancel and dispose its token source in `OnDestroy`. |
 
 ## Starting a load
 
@@ -53,4 +55,4 @@ A Controller implements `IScreenShow` and calls the Module from `OnScreenShown()
 
 ## Not specified yet
 
-Real-time updates (WebSocket, polling), caching policy, request batching and rate limiting have no agreed pattern. Assistants must ask.
+Real-time updates (WebSocket, polling), caching policy, request batching and rate limiting have no agreed pattern. Agents MUST ask.
