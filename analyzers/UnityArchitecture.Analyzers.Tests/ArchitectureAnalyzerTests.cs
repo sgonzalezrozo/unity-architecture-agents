@@ -40,6 +40,10 @@ using UnityEngine.UI;
         [InlineData("UA0011", "public class Shop { private void Run() { var count = 1; } }")]
         [InlineData("UA0011", "public class Shop { private void Run(List<int> items) { foreach (var item in items) { } } }")]
         [InlineData("UA0012", "public class Shop { private void Run(Transform root) { root?.ToString(); } }")]
+        [InlineData("UA0013", "public class ShopModel : MonoBehaviour { [SerializeField] private int price; }")]
+        [InlineData("UA0014", "public class AModel { private BModel b; } public class BModel { private AModel a; }")]
+        [InlineData("UA0014", "public class AModel { private BModel b; } public class BModel { private CModel c; } public class CModel { private AModel a; }")]
+        [InlineData("UA0014", "public class AModel { private List<BModel> items; } public class BModel { public BModel(AModel a) { } }")]
         public async Task ReportsRule(string rule, string source)
         {
             string[] rules = await AnalyzerHarness.AnalyzeAsync(USINGS + source);
@@ -50,6 +54,8 @@ using UnityEngine.UI;
         [Theory]
         [InlineData("public class ShopModel { public event Action OnChanged; public int Count => 1; }")]
         [InlineData("public class ItemModel { } public class ShopModel { private ItemModel item; }")]
+        [InlineData("public class SharedModel { } public class AModel { private SharedModel s; } public class BModel { private SharedModel s; }")]
+        [InlineData("public class CoinModel { public static CoinModel Instance { get; } = new CoinModel(); }")]
         [InlineData("public class CellModel : MonoBehaviour { } public class ShopModel : MonoBehaviour { private CellModel cell; }")]
         [InlineData("public class ShopModel { } public class ShopView : MonoBehaviour { internal ShopModel model; [SerializeField] private Image image; }")]
         [InlineData("public class ShopModel { } public class BuyController : BaseClickController { internal ShopModel model; [SerializeField] private int amount; }")]

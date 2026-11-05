@@ -23,6 +23,7 @@ namespace UnityArchitecture.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
+            context.RegisterCompilationStartAction(ModelGraph.Register);
             context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
             context.RegisterSymbolAction(AnalyzeEvent, SymbolKind.Event);
             context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
@@ -147,6 +148,9 @@ namespace UnityArchitecture.Analyzers
             if (UnityTypes.IsController(field.ContainingType) && IsSerializedReference(field))
                 context.ReportDiagnostic(Diagnostic.Create(Rules.ControllerSerializesReference, field.Locations[0], field.ContainingType.Name, field.Name));
 
+            if (UnityTypes.IsModel(field.ContainingType) && HasSerializeField(field))
+                context.ReportDiagnostic(Diagnostic.Create(Rules.SerializedModelField, field.Locations[0], field.ContainingType.Name, field.Name));
+
             if (!UnityTypes.IsMonoBehaviour(field.ContainingType))
                 return;
 
@@ -167,9 +171,11 @@ namespace UnityArchitecture.Analyzers
 
         private static bool IsSerializedReference(IFieldSymbol field)
         {
-            if (!UnityTypes.IsUnityObject(field.Type))
-                return false;
+            return UnityTypes.IsUnityObject(field.Type) && HasSerializeField(field);
+        }
 
+        private static bool HasSerializeField(IFieldSymbol field)
+        {
             foreach (AttributeData attribute in field.GetAttributes())
             {
                 if (attribute.AttributeClass?.ToDisplayString() == SERIALIZE_FIELD)

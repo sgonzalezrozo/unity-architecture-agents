@@ -18,6 +18,8 @@ An instruction is a request, not a guarantee. These rules fail the build, whethe
 | `UA0010` | 8 | Code uses LINQ |
 | `UA0011` | 8 | Code uses `var` |
 | `UA0012` | 8 | Code uses `?.` on a Unity object |
+| `UA0013` | 12 | A Model has a serialized field |
+| `UA0014` | 12 | Models depend on each other in a cycle |
 
 Layers come from class names: `*Model` and `*Module`, `*View`, and `*Controller`. A `BaseClickController` subclass also counts as a Controller, if the project has UI Foundations. `TMP_InputField` is allowed.
 
