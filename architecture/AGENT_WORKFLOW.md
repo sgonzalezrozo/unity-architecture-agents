@@ -22,6 +22,7 @@ Location: Assets/Client/PlayerStats/
 New files: list
 Changed files: list
 Model location: screen root, or Fast IoC scene "PlayerStats", priority 200
+Scopes: PlayerStats root, PlayerStats/ActionButtons
 Tests: PlayerStatsModelTests
 New dependencies: none
 Capabilities: fastIoC, recyclableScroller, screenSystem, uiFoundations
@@ -78,7 +79,10 @@ Run this before returning code. Item numbers are stable: the [analyzers](../anal
 7. Is every file in the right folder, and is source art outside the feature?
 8. Are there lambdas, LINQ, `var`, `?.` on Unity objects, or hardcoded text?
 9. Could a deterministic tool have decided this? Does a Model read time or randomness directly?
-10. Is everything that can be unit tested covered by a test?
+10. Is everything that can be unit tested covered by a test, with Model tests written first?
+11. Is each Model and View on its scope root? Does any View render outside its scope?
+12. Do Model dependencies form a cycle? Does any Model have a serialized field?
+13. Is this the minimum that finishes the need, with no unused abstraction and nothing loaded before it's needed?
 
 ## Prefab handoff
 
@@ -116,6 +120,7 @@ State what changed, which tool verified it, and what wasn't verified. If you cou
 **UI changes**
 
 - [ ] Strings use localization
+- [ ] A new screen passed its Play mode check (`TEST-10`)
 - [ ] Any prefab left to a person has a complete [handoff](#prefab-handoff)
 - [ ] Layout adapts to the target resolutions
 - [ ] Subscriptions, tokens and Addressables are cleaned up

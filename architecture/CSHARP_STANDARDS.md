@@ -18,6 +18,8 @@ Apply these rules to new code. Refactor old code only when asked.
 | Events | `OnSomethingChanged`, past tense |
 | Async methods | Suffix `Async` |
 
+Names MUST say what something is or does, without a comment. Use full, specific, searchable words: no abbreviations, no single letters outside loop counters, and no type or layer encodings beyond the patterns here.
+
 Method prefixes state intent: `Get` (query), `Set` (assign), `Is`/`Has`/`Can` (bool query), `Try` (may fail, returns bool), `Calculate` (computes), `Update` (recomputes), `Render` (View draws Model state), `On` (event handler), `Validate` (throws if invalid).
 
 ## Class layout
@@ -32,6 +34,8 @@ Constants → events → injected fields → serialized fields → public fields
 | Lines in a class | 120 | 200 | Split by responsibility |
 | Parameters | 2 | 3 | Create a parameter class |
 | Line width | | 120 characters | Wrap |
+
+A method MUST stay at one level of abstraction: it either coordinates named steps or does one low-level step, not both.
 
 Method lines count the body, without blank lines and lines holding only a brace. Class lines count everything in the class. The limits also apply to constructors and Unity methods. Only tests and generated code are exempt.
 
@@ -48,6 +52,8 @@ Method lines count the body, without blank lines and lines holding only a brace.
 - No hardcoded user-facing text. Use the localization system.
 - No boolean flag parameters that select a code path; make two methods. `SetVisible(bool)` is fine, since the value is the state being set.
 - Command-query separation. `Try*` is the accepted exception.
+- `out` and `ref` parameters only in `Try*` methods.
+- No duplicated logic: a second copy of a rule or calculation MUST be extracted. Repeated structure, such as the View subscribe pattern, is fine.
 - Law of Demeter: `player.GetCaptainHealth()`, not `player.Team.Captain.Health`.
 - Prefer polymorphism over a `switch` on type that chooses behavior. A `switch` expression for a simple mapping is fine.
 - Prefer `private`, and `{ get; private set; }` over public setters.
@@ -55,7 +61,7 @@ Method lines count the body, without blank lines and lines holding only a brace.
 
 ## SOLID
 
-Single responsibility per class, depend on interfaces at boundaries, prefer composition to inheritance. External systems (HTTP, files, SDKs) stay behind an interface we own, as Connectors do. A base class never checks for its derived types.
+Single responsibility per class, depend on interfaces at boundaries, prefer composition to inheritance. Don't add abstraction speculatively (`ARCH-10`). External systems (HTTP, files, SDKs) stay behind an interface we own, as Connectors do. A base class never checks for its derived types.
 
 ## Unity
 
@@ -66,6 +72,16 @@ Single responsibility per class, depend on interfaces at boundaries, prefer comp
 - Avoid `OnValidate` and decorative `[Header]` attributes.
 - Data classes that must serialize are `[Serializable]` with public fields. Unity does not serialize auto-properties.
 - Check your Unity version's C# level before using newer syntax. `record` and `init` need an `IsExternalInit` shim on older profiles, and `required` is not available at C# 9.
+
+## Performance
+
+Do the minimum that completely finishes the need (`ARCH-11`). An empty scene should run far faster than one with every feature ready to use.
+
+| ID | Rule |
+|---|---|
+| `PERF-01` | A feature MUST NOT be in a scene or memory before it is needed. Load it when it opens. |
+| `PERF-02` | A feature MUST release what it loaded when it closes. |
+| `PERF-03` | Code MUST NOT run every frame unless the value changes every frame. Prefer events. |
 
 ## Allocations
 
@@ -117,6 +133,7 @@ public static async void Forget(this Task task, string context)
 - **Return `Result<T>`** or a state for what can happen: network failure, invalid input, not enough currency.
 - Catch specific exceptions. Never swallow one without logging it.
 - Validate public API parameters. Do not null-check injected or cached references.
+- In a Model, `MODEL-03` decides which condition is ignored and which throws.
 - A missing optional serialized component is a `LogWarning`, and the code degrades gracefully.
 
 ## Logging
@@ -144,5 +161,9 @@ With `addressables`, load large textures and audio through it, and always releas
 | `TEST-04` | A bug fix MUST include a test that fails without the fix. |
 | `TEST-05` | Tests MUST be deterministic: no real time, randomness, network or dependence on run order. Fake them through interfaces. |
 | `TEST-06` | Views and Controllers hold no logic, so they rely on manual QA. If one needs a test, that signals misplaced logic. |
+| `TEST-07` | Mock only boundaries you own, such as Connectors and clocks. Use real Models. |
+| `TEST-08` | A test for Model behavior MUST be written first, and MUST fail before the code exists. |
+| `TEST-09` | Test code follows these standards, including naming and no duplication. Only the lambda ban and size limits don't apply. |
+| `TEST-10` | A new screen MUST get a Play mode check: it opens, its main input works and the Console has no errors. Automate it when possible. Otherwise, report it as a manual step. |
 
-Use NUnit and Arrange-Act-Assert, with one concern per test. Mock Connectors with NSubstitute. Name tests `{Method}_{Condition}_{Result}`. Writing the test first is encouraged, not mandatory.
+Use NUnit and Arrange-Act-Assert, with one concern per test. Mock Connectors with NSubstitute. Name tests `{Method}_{Condition}_{Result}`.

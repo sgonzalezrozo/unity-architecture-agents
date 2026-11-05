@@ -349,7 +349,7 @@ public class TrophyListView : MonoBehaviour
 }
 ```
 
-The Cell Model exposes only what its View needs. The View never reaches through to the Module. The custom `add` and `remove` forward the subscription, so the Cell Model needs no lifecycle code.
+The Cell Model exposes only what its View needs (`LIST-05`). The View never reaches through to the Module. The custom `add` and `remove` forward the subscription, so the Cell Model needs no lifecycle code.
 
 ```csharp
 public class TrophyCellModel : MonoBehaviour, IInjectableForChildren, IRecyclableCell<TrophyData>

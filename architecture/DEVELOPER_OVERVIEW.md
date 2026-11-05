@@ -6,7 +6,7 @@ The architecture and the code style are mandatory. Packages such as Fast IoC are
 
 ## 1. Philosophy
 
-We use MVC, strictly, in game code. Packages and tools don't have to follow it. These rules are not preferences: game code that breaks them is wrong even if it works.
+We use MVC, strictly, in all client code except ECS gameplay. Code after a wrapper that translates ECS to view code follows it too. Packages and tools don't have to. These rules are not preferences: code in scope that breaks them is wrong even if it works.
 
 1. **Knowledge goes one way.** Views and Controllers know Models. Models know only Models. Nobody knows a View or a Controller.
 2. **Models own the truth.** All data and all state live in Models.
@@ -14,6 +14,10 @@ We use MVC, strictly, in game code. Packages and tools don't have to follow it. 
 4. **Pull, never push.** If A knows B, A takes what it needs from B. B never hands it over.
 5. **No `Button`.** It is a View and a Controller in one component, so it breaks rule 3. The same goes for `Toggle`, `Slider` and `Dropdown`. `TMP_InputField` is the only exception. Controllers implement `IPointer*` interfaces.
 6. **A feature lives in one folder.** Code sits next to the prefabs built from it. Source art does not.
+7. **Scopes keep features apart.** A scope is one root GameObject, and a feature can hold several. A View renders only inside its scope.
+8. **If A knows B, A does the work.** B never prepares or delivers data for A.
+9. **Models never form a cycle.** If two Models need each other, what they share moves to a new Model that needs neither.
+10. **Do the minimum.** Add no abstraction without a second use, and load nothing before it's needed.
 
 ```
 Input → Controller → Model → (event, no data) → View reads Model → View renders
@@ -35,7 +39,7 @@ The only other exception: a feature's **Module**, a Model that wraps its backend
 
 ### Model
 
-A MonoBehaviour on a common parent of its Views and Controllers, even a root GameObject of the scene. Holds state, applies rules, announces changes. Knows nothing about Unity UI.
+A MonoBehaviour on its scope root, with its View. It moves up only when another scope or feature needs it. Holds state, applies rules, announces changes. Knows nothing about Unity UI.
 
 ```csharp
 public class LivesModel : MonoBehaviour
