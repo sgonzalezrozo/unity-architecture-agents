@@ -21,6 +21,7 @@ These are the rules and examples I give assistants such as Claude Code, Copilot 
 | [C# standards](architecture/CSHARP_STANDARDS.md) | Style, performance, async, logging and tests |
 | [Examples](architecture/examples) | Three complete features with invented names: Trophy Room, Settings and Inventory |
 | [Templates](templates) | `.editorconfig`, Copilot instructions and a Rider AI Assistant rule |
+| [Analyzers](analyzers) | Roslyn analyzers that turn the mechanical rules into compile errors |
 
 ## How the process scales
 
