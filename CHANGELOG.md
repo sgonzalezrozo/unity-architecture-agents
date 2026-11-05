@@ -15,7 +15,7 @@ All notable changes to this project are documented in this file.
 ### Changed
 
 - **Breaking:** Fast IoC, Recyclable Scroller, Screen System and UI Foundations are optional. The architecture and code style stay mandatory.
-- Models sit on a common parent of their Views and Controllers. Injection is the exception, for Models with no common parent or that persist.
+- Models sit on a common parent of their Views and Controllers. Injection is the exception, for Models with no common parent or that persist. Without a container, those Models are singletons.
 - Examples use `IPointerClickHandler` and `GameObject` state roots.
 - The analyzers apply Fast IoC rules only when Fast IoC is in the compilation.
 - **Breaking:** Renamed documents, the `Services And definitions` folder to `Services`, and `Actions` GameObjects to `{Action}Input`.

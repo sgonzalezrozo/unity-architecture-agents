@@ -98,7 +98,7 @@ TrophyRoomMain [MainRoomLoadController, MainRoomStateView]
 | `Name [ProjectType]` | GameObject with project MonoBehaviours |
 | `Name (UnityType) [ProjectType]` | GameObject with both |
 
-Pure C# Models never appear in a hierarchy, because they aren't on any GameObject.
+A MonoBehaviour Model sits on the screen root or another common parent. Pure C# Models never appear in a hierarchy, because they aren't on any GameObject.
 
 Rules:
 

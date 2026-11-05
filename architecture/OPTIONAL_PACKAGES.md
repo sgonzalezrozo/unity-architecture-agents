@@ -30,7 +30,7 @@ Also set `otherContainer = true` if the project uses another dependency injectio
 
 | Need | Package form | Unity form |
 |---|---|---|
-| Model with no common parent, or that persists | `fastIoC`: pure C#, injected `internal` field. See [Where a Model lives](MVC.md#where-a-model-lives) | Ask (`ROOT-07`) |
+| Model with no common parent, or that persists | `fastIoC`: pure C#, injected `internal` field. See [Where a Model lives](MVC.md#where-a-model-lives) | Pure C# singleton (`ROOT-07`) |
 | Click input | `uiFoundations`: subclass of `BaseClickController` | `MonoBehaviour, IPointerClickHandler` |
 | Raycast target | `uiFoundations`: `BaseClickController`, a transparent `Graphic` | Transparent `Image` on the input GameObject |
 | Disable clicks | `uiFoundations`: `Interactable = false` | Disable the input GameObject, or place it in an inactive state |
@@ -112,7 +112,7 @@ This creates one cell per item, so it fits short lists. A long list needs virtua
 
 A Model owns the current screen, and a View renders it. A Controller starts a load from `OnEnable`, because the screen root activates each time it is shown.
 
-If navigation must persist across scenes, the Model is pure C# and injected (`ROOT-07`).
+If navigation must persist across scenes, it is row 2 in [Where a Model lives](MVC.md#where-a-model-lives).
 
 ```csharp
 public enum GameScreen { Home, Inventory }
