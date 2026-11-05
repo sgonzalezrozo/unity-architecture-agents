@@ -37,7 +37,7 @@ Strict MVC. Code that violates an invariant is incorrect even if it compiles and
 | `ARCH-06` | Feature code and the prefabs built from it share a folder. Source art does not. | Review |
 | `ARCH-07` | Anything that can be deterministic MUST be. Prefer a deterministic tool to agent judgment, and keep runtime logic reproducible. See [Determinism](architecture/AGENT_WORKFLOW.md#determinism). | `verify.sh`, review |
 | `ARCH-08` | Anything that can be unit tested MUST have unit tests. Logic that can't be tested where it is MUST move to where it can. See [Tests](architecture/CSHARP_STANDARDS.md#tests). | `verify.sh`, review |
-| `ARCH-09` | Model dependencies MUST be acyclic. If two Models need each other, what they share MUST move to a new Model that needs neither. A shared Model MUST NOT reference a feature's Model. | `UA0014` (pending) |
+| `ARCH-09` | Model dependencies MUST be acyclic. If two Models need each other, what they share MUST move to a new Model that needs neither. A shared Model MUST NOT reference a feature's Model. | `UA0014` |
 | `ARCH-10` | Code MUST NOT add an interface or abstraction without a second use or a test need. | Review |
 | `ARCH-11` | Do the minimum that completely finishes the need. A feature not in use MUST cost nothing at runtime. See [Performance](architecture/CSHARP_STANDARDS.md#performance). | Review |
 

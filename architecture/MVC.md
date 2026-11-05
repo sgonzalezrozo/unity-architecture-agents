@@ -132,7 +132,7 @@ public class LivesModel : MonoBehaviour
 | `MODEL-06` | A Model MUST fire an event only when state changed. |
 | `MODEL-07` | A Model MAY subscribe to another Model. It MUST use a named method and unsubscribe in `OnDestroy()` on a MonoBehaviour, or `Dispose()` in pure C#. |
 | `MODEL-08` | A Model SHOULD have one responsibility. More than about 5 commands signals a split. |
-| `MODEL-09` | A Model MUST NOT have serialized fields (`UA0013`, pending). |
+| `MODEL-09` | A Model MUST NOT have serialized fields (`UA0013`). |
 | `MODEL-10` | A value set outside code MUST come from an injected configuration asset or from backend JSON. Everything else is a constant. Without a container, load the asset by address or path. |
 | `MODEL-11` | A Model MUST finish changing state before it fires an event. A subscriber MUST NOT call a command on the Model that fired the event. |
 

@@ -71,6 +71,20 @@ namespace UnityArchitecture.Analyzers
             "?. is used on a Unity object",
             "Don't use ?. on {0}. It skips Unity's destroyed-object check: compare with null explicitly.");
 
+        public static readonly DiagnosticDescriptor SerializedModelField = Create(
+            "UA0013",
+            "A Model has a serialized field",
+            "Remove the serialized field {1} from {0}. Use an injected configuration asset, backend JSON or a constant.");
+
+        public static readonly DiagnosticDescriptor ModelCycle = new DiagnosticDescriptor(
+            "UA0014",
+            "Models form a dependency cycle",
+            "{0} is in a dependency cycle through {1}. Move what they share to a new Model that needs neither.",
+            CATEGORY,
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            customTags: WellKnownDiagnosticTags.CompilationEnd);
+
         public static readonly ImmutableArray<DiagnosticDescriptor> All = ImmutableArray.Create(
             Knowledge,
             ViewHandlesInput,
@@ -83,7 +97,9 @@ namespace UnityArchitecture.Analyzers
             Lambda,
             Linq,
             Var,
-            ConditionalAccessOnUnityObject);
+            ConditionalAccessOnUnityObject,
+            SerializedModelField,
+            ModelCycle);
 
         private static DiagnosticDescriptor Create(string id, string title, string message)
         {
