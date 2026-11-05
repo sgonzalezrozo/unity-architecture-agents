@@ -9,5 +9,5 @@ Non-negotiable, in case nothing else is loaded:
 - Strict MVC: Models know only Models. Views know only Models and rendering components. Controllers know only Models and input interfaces.
 - Events are `public event Action OnSomethingChanged;` with no parameters. Listeners pull from the Model.
 - No `Button`, `Toggle`, `Slider` or `Dropdown`. Controllers implement `IPointer*` interfaces.
-- If `Packages/manifest.json` lists `com.sgonzalezrozo.ui-foundations`, see `.ai/architecture/OPTIONAL_PACKAGES.md`.
-- MonoBehaviours receive dependencies through `internal` fields with no attribute (FastIoC). Pure C# classes use the constructor.
+- Packages are optional. Before generating code, run capability detection from `.ai/architecture/OPTIONAL_PACKAGES.md`.
+- MonoBehaviours receive dependencies through assigned `internal` fields. Pure C# classes use the constructor.

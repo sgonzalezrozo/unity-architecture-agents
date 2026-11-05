@@ -2,7 +2,7 @@
 
 **Load when:** building clickable elements, visual states, tabs, lists or layouts.
 
-Examples use plain Unity APIs. If `uiFoundations = true`, apply the mapping in [Optional packages](OPTIONAL_PACKAGES.md).
+Patterns are mandatory. The packages that implement them are optional: see [Optional packages](OPTIONAL_PACKAGES.md).
 
 ## Selectable replacements
 
@@ -80,7 +80,9 @@ InventoryScreen
 
 ## Lists
 
-All dynamic lists and grids MUST use `RecyclableScrollRect<T>`. It is abstract, so declare one concrete class per data type:
+If `recyclableScroller = true`, dynamic lists and grids MUST use `RecyclableScrollRect<T>`. Otherwise, see [List without RecyclableScroller](OPTIONAL_PACKAGES.md#list-without-recyclablescroller).
+
+`RecyclableScrollRect<T>` is abstract, so declare one concrete class per data type:
 
 ```csharp
 public class ItemScroller : RecyclableScrollRect<ItemData>
@@ -139,7 +141,7 @@ private void RenderItems()
 
 ### Cell Model
 
-The only MonoBehaviour Model. The scroller requires a component on the prefab.
+The only MonoBehaviour Model, because a cell needs a component on the prefab. This form is for `fastIoC` and `recyclableScroller`.
 
 ```csharp
 public class ItemCellModel : MonoBehaviour, IInjectableForChildren, IRecyclableCell<ItemData>
@@ -175,7 +177,7 @@ public class ItemCellModel : MonoBehaviour, IInjectableForChildren, IRecyclableC
 
 | ID | Rule |
 |---|---|
-| `LIST-01` | `IInjectableForChildren` gives the cell its `internal` fields. `IRecyclableCell<T>` is how the scroller sets `Data`. |
+| `LIST-01` | With the packages, `IInjectableForChildren` gives the cell its `internal` fields, and `IRecyclableCell<T>` is how the scroller sets `Data`. |
 | `LIST-02` | The `Data` setter MUST fire an event. A recycled cell can get data while active, so `OnEnable` alone would show stale content. This is the one accepted push, and it MUST stop at the Cell Model. |
 | `LIST-03` | Cell Views and Controllers MUST get the Cell Model with `GetComponentInParent<TCellModel>()` in `Awake`. |
 | `LIST-04` | Cells MUST NOT be instantiated by hand or call `Initialize(data)`. |

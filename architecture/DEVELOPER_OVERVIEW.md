@@ -2,6 +2,8 @@
 
 The summary for human developers, in one sitting. Agents use [AGENTS.md](../AGENTS.md), which holds the normative rules and their IDs.
 
+The architecture and the code style are mandatory. Packages such as Fast IoC are optional, and code samples here use them: see [Optional packages](OPTIONAL_PACKAGES.md).
+
 ## 1. Philosophy
 
 We use MVC, strictly. These rules are not preferences: code that breaks them is wrong even if it works.
@@ -121,7 +123,7 @@ public class LoseLifeController : MonoBehaviour, IPointerClickHandler
 
 | | How |
 |---|---|
-| MonoBehaviour | `internal` field, no attribute. FastIoC fills it before `Awake` |
+| MonoBehaviour | `internal` field. Fast IoC or a composition root assigns it |
 | Pure C# class | Constructor |
 | Inside a list cell | `GetComponentInParent<CellModel>()`, cached once |
 

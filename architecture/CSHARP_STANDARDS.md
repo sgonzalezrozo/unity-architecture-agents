@@ -2,6 +2,8 @@
 
 **Load when:** writing or reviewing C#.
 
+These standards are mandatory in every project, with or without the optional packages.
+
 `.editorconfig` covers formatting in the editor but doesn't stop compilation. The [analyzers](../analyzers) fail the build for `var`, LINQ, lambdas and `?.` on Unity objects. Code review enforces the rest.
 
 Apply these rules to new code. Refactor old code only when asked.
@@ -77,7 +79,7 @@ Also:
 
 - Reuse collections with `.Clear()` in methods called often. Return empty collections, not `null`.
 - Use `StringBuilder` for string building in loops.
-- Pool objects created often; the scroller does this for lists.
+- Pool objects created often.
 - Cache `WaitForSeconds` and similar yield instructions.
 - Give DOTween and other callbacks a named method. Store parameters in fields.
 - Use `MaterialPropertyBlock` for per-instance material changes.
@@ -130,7 +132,7 @@ Clean up in `OnDestroy`, or `OnDisable` for subscriptions: cancel and dispose `C
 
 Pure C# classes that hold subscriptions implement `IDisposable`.
 
-Load large textures and audio with Addressables, and always release the handle.
+With `addressables`, load large textures and audio through it, and always release the handle.
 
 ## Tests
 

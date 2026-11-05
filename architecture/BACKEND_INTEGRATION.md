@@ -44,7 +44,7 @@ Screen Models may read the Module and call its commands, like any Model-to-Model
 
 ## Starting a load
 
-A Controller implements `IScreenShow` and calls the Module from `OnScreenShown()`. Never from `Start()`, because a screen can be shown more than once.
+A Controller calls the Module from the screen-shown event: `OnScreenShown()` with `screenSystem`, otherwise `OnEnable`. Never from `Start()`, because a screen can be shown more than once.
 
 ## Network failures
 

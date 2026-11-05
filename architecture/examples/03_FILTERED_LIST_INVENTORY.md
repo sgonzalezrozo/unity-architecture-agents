@@ -6,7 +6,7 @@ Tabs filter one list, and a details panel renders the selection. All state is lo
 
 **Demonstrates:** tab elements from one class, a filtered list without allocations, shared selection.
 
-Code uses plain Unity APIs. If `uiFoundations = true`, apply [Optional packages](../OPTIONAL_PACKAGES.md).
+Capability profile: `fastIoC`, `recyclableScroller` and `screenSystem` are `true`, and `uiFoundations` is `false`. For another profile, apply the [mapping](../OPTIONAL_PACKAGES.md#mapping).
 
 ## Hierarchy
 
@@ -67,6 +67,7 @@ public class InventoryModel : IRecyclableDataSource<InventoryItemData>
     public InventoryTab SelectedTab => selectedTab;
     public int SelectedItemId => selectedItemId;
     public int ItemCount => visibleItems.Count;
+    public IReadOnlyList<InventoryItemData> VisibleItems => visibleItems;
     public InventoryItemData SelectedItem => FindItemById(selectedItemId);
 
     public InventoryItemData GetItem(int index)

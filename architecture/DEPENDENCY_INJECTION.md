@@ -2,13 +2,19 @@
 
 **Load when:** writing bindings or installers, or getting a reference.
 
-The container is **FastIoC**. Bindings are defined per feature and resolved through generated code.
+A MonoBehaviour never creates or looks up its own dependencies: something assigns them. That rule is mandatory. The mechanism depends on the project:
+
+| Capability | Mechanism |
+|---|---|
+| `fastIoC` | Injected `internal` fields. The rest of this document applies |
+| `otherContainer` | That container's injection |
+| Neither | [Composition root](OPTIONAL_PACKAGES.md#composition-root) |
 
 ## Reference acquisition
 
 | Class | How |
 |---|---|
-| MonoBehaviour | `internal` field, no attribute |
+| MonoBehaviour | `internal` field |
 | Pure C# class | Constructor |
 | Inside a list cell | `GetComponentInParent<TCellModel>()`, cached once |
 
@@ -33,12 +39,12 @@ public class TrophyRoomModule
 }
 ```
 
-Injected fields are assigned before `Awake`.
+With `fastIoC`, injected fields are assigned before `Awake`, and these rules apply:
 
 | ID | Rule |
 |---|---|
-| `DI-01` | `[Inject]` MUST NOT be used (`UA0007`). |
-| `DI-02` | MonoBehaviour fields MUST be `private`, or `internal` with no attribute when injected (`UA0008`). |
+| `DI-01` | `[Inject]` MUST NOT be used with Fast IoC (`UA0007`). |
+| `DI-02` | MonoBehaviour fields MUST be `private` or `internal` (`UA0008`). With Fast IoC, `internal` fields MUST have no attribute. |
 | `DI-03` | `Initialize(...)` with parameters MUST NOT exist on a MonoBehaviour (`UA0006`). |
 | `DI-04` | A MonoBehaviour MUST NOT have a constructor. |
 | `DI-05` | Code MUST NOT resolve from `ContextRuntime` as a service locator. FastIoC flags this in the Editor and development builds. |
@@ -48,7 +54,7 @@ Injected fields are assigned before `Awake`.
 
 FastIoC matches by **type**. The field name doesn't matter and no attribute marks intent, so `internal` is the only signal that a field is injected.
 
-## Installers
+## Fast IoC installers
 
 One `BindingRecorder` per feature, in `Services/`.
 

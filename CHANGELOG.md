@@ -7,12 +7,14 @@ All notable changes to this project are documented in this file.
 ### Added
 
 - Roslyn analyzers for the mechanical rules in the checklist.
-- `OPTIONAL_PACKAGES.md`, with capability detection for UI Foundations.
+- `OPTIONAL_PACKAGES.md`, with capability detection, a composition root, and list and navigation forms for projects without the packages.
 - Stable rule IDs, RFC 2119 keywords and the enforcement of each invariant.
 
 ### Changed
 
-- **Breaking:** UI Foundations is optional. Examples use `IPointerClickHandler` and `GameObject` state roots.
+- **Breaking:** Fast IoC, Recyclable Scroller, Screen System and UI Foundations are optional. The architecture and code style stay mandatory.
+- Examples use `IPointerClickHandler` and `GameObject` state roots.
+- The analyzers apply Fast IoC rules only when Fast IoC is in the compilation.
 - **Breaking:** Renamed documents, the `Services And definitions` folder to `Services`, and `Actions` GameObjects to `{Action}Input`.
 - **Breaking:** Rendering methods are now `Render{Subject}`, and examples use full, specific member names.
 

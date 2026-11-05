@@ -47,8 +47,8 @@ A very large screen may use subfolders by section (`Tabs/`, `Members/`), never b
 | `{Feature}Module.cs` | Pure C# Model that wraps the feature's backend connection ([Backend integration](BACKEND_INTEGRATION.md)) |
 | `I{Feature}Connector.cs`, `{Feature}Connector.cs` | Connector interface and implementation |
 | `{Feature}Data.cs` | Data classes from the backend |
-| `{Feature}Installer.cs` | FastIoC bindings ([Dependency injection](DEPENDENCY_INJECTION.md)) |
-| `ScreenDefinition` asset(s) | One if the feature has a single screen. If there are several, see below |
+| `{Feature}Installer.cs` | Fast IoC bindings, or `{Feature}CompositionRoot.cs` without a container ([Dependency injection](DEPENDENCY_INJECTION.md)) |
+| `ScreenDefinition` asset(s) | With `screenSystem`. One if the feature has a single screen. If there are several, see below |
 
 ### Multi-screen features
 
@@ -104,17 +104,17 @@ Rules:
 
 - Separate static elements from dynamic ones. Dynamic content is either tab content or a scroller.
 - A screen has its Views at the root of the scope they render, or lower when a section is independent. Interactive elements carry their own Controller.
-- Screen prefabs have no Canvas of their own. They are Addressable prefabs instantiated under an existing Canvas, which owns the `CanvasScaler`.
+- Screen prefabs have no Canvas of their own. They sit under an existing Canvas, which owns the `CanvasScaler`.
 
 ## Modals and navigation
 
 Popups are separate prefabs in the screen folder that uses them. A modal's state lives in a Model like any other state.
 
-**Not specified yet.** `ScreenSystem`, `ScreenDefinition`, modal stacking, returning a result from a modal, and passing context between screens have no documented API. Agents MUST read how existing features do it, and MUST ask if there is no precedent.
+**Not specified yet.** With `screenSystem`, the `ScreenSystem` and `ScreenDefinition` APIs, modal stacking, returning a result from a modal, and passing context between screens have no documented API. Agents MUST read how existing features do it, and MUST ask if there is no precedent.
 
 One rule already applies: nothing is pushed to a screen. If screen B needs the selected trophy, screen A sets it on a shared Model and B reads it there. The [backend example](examples/01_BACKEND_FEATURE_TROPHY_ROOM.md) does this with `TrophyRoomModule.SelectTrophy`.
 
-Scene transitions always go through the project's scene loader, never `SceneManager` directly. It prepares the Screen System for the scene change and shows the splash screen while the next scene loads. Showing a menu screen is not the same as leaving a match scene.
+Scene transitions MUST go through one project scene loader, never `SceneManager` from feature code. Showing a menu screen is not the same as leaving a match scene.
 
 ## Assembly definitions
 

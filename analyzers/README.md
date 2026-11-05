@@ -12,8 +12,8 @@ An instruction is a request, not a guarantee. These rules fail the build, whethe
 | `UA0004` | 4 | An event has parameters |
 | `UA0005` | 5 | Code uses `Button`, `Toggle`, `Slider`, `Dropdown` or another `Selectable` |
 | `UA0006` | 5 | A MonoBehaviour has `Initialize` with parameters |
-| `UA0007` | 6 | Code uses `[Inject]` |
-| `UA0008` | 6 | A MonoBehaviour field isn't `private`, or `internal` with no attribute |
+| `UA0007` | 6 | Code uses `[Inject]` in a project with Fast IoC |
+| `UA0008` | 6 | A MonoBehaviour field isn't `private` or `internal`. With Fast IoC, an `internal` field has an attribute |
 | `UA0009` | 8 | Code uses a lambda or anonymous method |
 | `UA0010` | 8 | Code uses LINQ |
 | `UA0011` | 8 | Code uses `var` |
