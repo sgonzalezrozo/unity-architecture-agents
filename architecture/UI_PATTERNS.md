@@ -21,15 +21,15 @@ CloseButton
 ├── Visuals
 │   ├── Background (Image, raycastTarget off)
 │   └── Label (TextMeshProUGUI, raycastTarget off)
-└── CloseInput (Image: alpha 0, raycastTarget on) [CloseController]
+└── CloseController (Image: alpha 0, raycastTarget on) [CloseController]
 ```
 
 | ID | Rule |
 |---|---|
-| `INPUT-01` | The Controller MUST sit on a dedicated child named `{Action}Input`, separate from the visuals. |
-| `INPUT-02` | `{Action}Input` MUST have its own raycast target that fills the element, and MUST be the last sibling. Pointer events bubble to parents, not to siblings. |
+| `INPUT-01` | The Controller MUST sit on a dedicated child named `{Action}Controller`, separate from the visuals. |
+| `INPUT-02` | `{Action}Controller` MUST have its own raycast target that fills the element, and MUST be the last sibling. Pointer events bubble to parents, not to siblings. |
 | `INPUT-03` | Visual-only Graphics MUST have `raycastTarget` off. |
-| `INPUT-04` | In a multi-state element, `{Action}Input` MUST be inside the state that accepts input, so other states can't be clicked. |
+| `INPUT-04` | In a multi-state element, `{Action}Controller` MUST be inside the state that accepts input, so other states can't be clicked. |
 | `INPUT-05` | A screen-level Controller MUST handle only lifecycle events, never input from a child element. |
 
 ## Visual states
@@ -40,7 +40,7 @@ Use for two or more mutually exclusive looks of one element, such as Loading, Lo
 PurchaseArea [PurchaseStateView]
 ├── AvailableRoot
 │   ├── PriceText (TextMeshProUGUI)
-│   └── BuyInput (Image: alpha 0) [BuyController]
+│   └── BuyController (Image: alpha 0) [BuyController]
 ├── LockedRoot
 │   └── LockIcon (Image)
 └── OwnedRoot
@@ -65,7 +65,7 @@ InventoryScreen
 │   ├── WeaponsTab [InventoryTabView]
 │   │   ├── ActiveRoot
 │   │   ├── InactiveRoot
-│   │   └── SelectWeaponsInput (Image: alpha 0) [SelectTabController]
+│   │   └── SelectTabController (Image: alpha 0) [SelectTabController]
 │   └── ArmorTab (same components, different serialized tab)
 └── Content [TabContentView]
     ├── WeaponsContent (CanvasGroup)
@@ -99,7 +99,7 @@ ItemList [ItemListView]
 ItemCell.prefab [ItemCellModel, ItemCellView]
 ├── ItemIcon (Image)
 ├── ItemNameText (TextMeshProUGUI)
-└── SelectItemInput (Image: alpha 0) [SelectItemController]
+└── SelectItemController (Image: alpha 0) [SelectItemController]
 ```
 
 ### Data source

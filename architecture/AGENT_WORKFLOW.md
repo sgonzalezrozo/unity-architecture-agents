@@ -21,7 +21,7 @@ Feature: PlayerStats
 Location: Assets/Client/PlayerStats/
 New files: list
 Changed files: list
-Reference wiring: Fast IoC scene "PlayerStats", priority 200
+Model location: screen root, or Fast IoC scene "PlayerStats", priority 200
 Tests: PlayerStatsModelTests
 New dependencies: none
 Capabilities: fastIoC, recyclableScroller, screenSystem, uiFoundations
@@ -80,6 +80,25 @@ Run this before returning code. Item numbers are stable: the [analyzers](../anal
 9. Could a deterministic tool have decided this? Does a Model read time or randomness directly?
 10. Is everything that can be unit tested covered by a test?
 
+## Prefab handoff
+
+An agent can't build a prefab, so a person does it from the agent's instructions. They MUST leave nothing to guess.
+
+| ID | Rule |
+|---|---|
+| `HAND-01` | List every object with its parent, anchors, size, position and components. |
+| `HAND-02` | State Raycast Target for every `Graphic`. Only an input object has it on. |
+| `HAND-03` | List every serialized field and what to assign to it. |
+| `HAND-04` | List the setup a first run needs, such as TMP Essentials or the EventSystem input module. |
+| `HAND-05` | Say what to test in Play mode, and report Play mode as not verified. |
+
+```
+| Object | Parent | Anchors | Size, position | Components | Raycast Target |
+|---|---|---|---|---|---|
+| CoinBalance | Canvas | stretch | fills parent | none | n/a |
+| BalanceText | CoinBalance | top center | 400x100, y -120 | TextMeshProUGUI, CoinBalanceView | off |
+```
+
 ## Reporting back
 
 State what changed, which tool verified it, and what wasn't verified. If you couldn't compile or run the code, say so.
@@ -97,6 +116,7 @@ State what changed, which tool verified it, and what wasn't verified. If you cou
 **UI changes**
 
 - [ ] Strings use localization
+- [ ] Any prefab left to a person has a complete [handoff](#prefab-handoff)
 - [ ] Layout adapts to the target resolutions
 - [ ] Subscriptions, tokens and Addressables are cleaned up
 

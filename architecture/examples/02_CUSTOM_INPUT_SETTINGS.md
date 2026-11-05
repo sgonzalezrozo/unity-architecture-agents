@@ -21,20 +21,20 @@ SettingsScreen [SettingsModel]
 │   └── VolumeRow [VolumeBarView]
 │       ├── VolumeTrack (Image)
 │       ├── VolumeFill (Image: type Filled)
-│       └── DragVolumeInput (Image: alpha 0) [DragVolumeController]
+│       └── DragVolumeController (Image: alpha 0) [DragVolumeController]
 └── Footer [SaveAreaView]
     └── UnsavedChangesRoot
-        └── SaveSettingsInput (Image: alpha 0) [SaveSettingsController]
+        └── SaveSettingsController (Image: alpha 0) [SaveSettingsController]
 
 SettingToggle.prefab [SettingToggleView]
 ├── EnabledRoot
 │   └── EnabledBackground (Image)
 ├── DisabledRoot
 │   └── DisabledBackground (Image)
-└── ToggleSettingInput (Image: alpha 0) [ToggleSettingController]
+└── ToggleSettingController (Image: alpha 0) [ToggleSettingController]
 ```
 
-`ToggleSettingInput` sits outside the state roots because both states accept clicks. `DragVolumeController` uses its own `RectTransform` as the bar.
+`ToggleSettingController` sits outside the state roots because both states accept clicks. `DragVolumeController` uses its own `RectTransform` as the bar.
 
 ## Model
 
