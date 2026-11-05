@@ -85,7 +85,7 @@ git submodule update --remote .ai
 
 ## Project status
 
-The rules assume the [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller) and [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) packages. `BaseClickController`, `ViewStateMachine` and `BaseStartScene` aren't published yet.
+This is version `0.1.0`. The rules assume the [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller) and [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) packages.
 
 ## Changelog
 

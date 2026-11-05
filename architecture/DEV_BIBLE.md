@@ -214,7 +214,7 @@ public void Process(List<ItemData> items)
 | `?.`, `??`, `??=` on Unity objects | `if (x == null)`; they bypass Unity's destroyed check |
 | `Action<T>` or `{ get; set; }` events | `public event Action OnChanged;` |
 | `async void`, `.Result`, `.Wait()` | `async Task`, and `.Forget("Context")` from sync code |
-| `SceneManager` directly | `LoadSceneAsync` on the scene's `BaseStartScene` |
+| `SceneManager` directly | The project's scene loader |
 | Renaming a serialized field | `[FormerlySerializedAs("oldName")]` |
 
 **Async and errors**

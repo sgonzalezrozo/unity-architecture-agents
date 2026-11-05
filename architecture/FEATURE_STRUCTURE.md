@@ -104,7 +104,7 @@ Popups are separate prefabs in the screen folder that uses them. A modal's state
 
 One rule already applies: nothing is pushed to a screen. If screen B needs to know which trophy was selected, A sets it on a shared Model and B reads it there. [Trophy Room](examples/01_TROPHY_ROOM.md) does this with `TrophyRoomModule.Select`.
 
-Scene transitions always go through `LoadSceneAsync` on the scene's `BaseStartScene`, never `SceneManager` directly. It prepares the Screen System for the scene change and shows the splash screen while the next scene loads. Showing a menu screen is not the same as leaving a match scene.
+Scene transitions always go through the project's scene loader, never `SceneManager` directly. It prepares the Screen System for the scene change and shows the splash screen while the next scene loads. Showing a menu screen is not the same as leaving a match scene.
 
 ## Assembly definitions
 
