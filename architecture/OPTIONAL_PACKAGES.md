@@ -38,7 +38,7 @@ Also set `otherContainer = true` if the project uses another dependency injectio
 | Mutually exclusive looks | `uiFoundations`: `ViewStateMachine.SetState(stateName)` | View with one `GameObject` root per state |
 | Dynamic list | `recyclableScroller`: `RecyclableScrollRect<T>` | [`ScrollRect` with reused cells](#list-without-recyclablescroller) |
 | Screen shown | `screenSystem`: `IScreenShow.OnScreenShown()` | Controller `OnEnable`, on the screen root |
-| Open a screen | `screenSystem`: `ScreenSystem` API | [Navigation Model](#navigation-without-screensystem) |
+| Open a screen | `screenSystem`: `ScreenManager.Instance.GoTo(screenName)` | [Navigation Model](#navigation-without-screensystem) |
 | Load a large asset | `addressables`: release the handle | Direct reference or `Resources` |
 
 If `otherContainer = true`, use that container's injection in place of the `fastIoC` form. Keep every other rule.

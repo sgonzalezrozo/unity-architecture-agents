@@ -75,4 +75,4 @@ A task is complete only when it passes the [pre-response checklist](architecture
 
 MUST NOT invent an API. The documented surface of project packages is in the linked documents. For anything else, read the package source or ask. Verify each symbol below before use:
 
-`RecyclableScrollRect<T>`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenSystem`, `ScreenDefinition`, `IScreenShow`, `IPrefabInstantiator`, `BaseClickController`, `ViewStateMachine`.
+`RecyclableScrollRect<T>`, `IRecyclableCell<T>`, `IRecyclableDataSource<T>`, `IInjectableForChildren`, `BindingRecorder`, `MonoInstaller`, `ScreenManager`, `ScreenDefinition`, `IScreenShow`, `IPrefabInstantiator`, `BaseClickController`, `ViewStateMachine`.

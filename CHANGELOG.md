@@ -34,6 +34,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- The API list and the navigation mapping name `ScreenManager`. `ScreenSystem` is only a namespace.
 - `ViewStateMachine.SetState` replaces `SetActiveState`, which doesn't exist.
 - Lists use a concrete `RecyclableScrollRect<T>` subclass and the real `IRecyclableDataSource<T>` members.
 - `MonoInstaller` takes scene names, not a subscene.
