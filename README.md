@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Unity Architecture Agents is a free, open-source `AGENTS.md` and `CLAUDE.md` rule set for AI coding agents on Unity 6 projects. It gives agents a strict MVC architecture for uGUI, Roslyn analyzers that turn the rules into compile errors, a batch-mode verify script, and a Claude Code hook that won't let an agent finish with a broken build. Templates cover Cursor, GitHub Copilot and Rider AI Assistant, and the rules say how to verify work through Unity MCP or the Unity CLI.
+Unity Architecture Agents is a free, open-source `AGENTS.md` and `CLAUDE.md` rule set for AI coding agents on Unity 6 projects. It gives agents a strict MVC architecture for uGUI, Roslyn analyzers that turn the rules into compile errors, a batch-mode verify script, and a Claude Code hook that won't let an agent finish with a broken build. Templates cover Cursor, GitHub Copilot and Rider AI Assistant. It works with Unity MCP servers and the Unity CLI.
 
 These are the rules I give Claude Code, Copilot and Rider's AI Assistant in my personal Unity projects. They're written for machines: each rule has a stable ID and a MUST or MUST NOT, and it says whether a compiler analyzer or a code review enforces it.
 
@@ -125,7 +125,7 @@ I use it with Claude Code, Copilot and Rider's AI Assistant. Claude Code reads `
 
 ### Does it work with Unity MCP?
 
-It has rules for it, but they're not tested with a Unity MCP server yet. [Editor tools](architecture/EDITOR_TOOLS.md) tells an agent with the Unity CLI (`unity mcp`) or MCP for Unity to verify through the open Editor, and allows it to build prefabs with editor tools, never by writing prefab or scene YAML as text.
+Yes. With the Unity CLI (`unity mcp`) or MCP for Unity, the agent verifies through the open Editor and may build prefabs with editor tools. It still never writes prefab or scene YAML as text. See [Editor tools](architecture/EDITOR_TOOLS.md).
 
 ### Which architecture does it use?
 

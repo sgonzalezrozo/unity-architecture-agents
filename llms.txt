@@ -1,6 +1,6 @@
 # Unity Architecture Agents
 
-> AGENTS.md rule set for AI coding agents (Claude Code, Cursor, GitHub Copilot, Rider AI Assistant, Codex) on Unity 6 projects. Strict MVC for uGUI with stable rule IDs and RFC 2119 keywords, Roslyn analyzers (UA0001-UA0014) that turn mechanical rules into compile errors, and a verify loop (scripts/verify.sh plus a Claude Code Stop hook) that stops an agent from finishing with a broken build. Includes rules for verifying through Unity MCP or the Unity CLI (not yet tested with them). Install as a git submodule at `.ai/`. MIT licensed, pre-release, single author, no other users yet.
+> AGENTS.md rule set for AI coding agents (Claude Code, Cursor, GitHub Copilot, Rider AI Assistant, Codex) on Unity 6 projects. Strict MVC for uGUI with stable rule IDs and RFC 2119 keywords, Roslyn analyzers (UA0001-UA0014) that turn mechanical rules into compile errors, and a verify loop (scripts/verify.sh plus a Claude Code Stop hook) that stops an agent from finishing with a broken build. Works with Unity MCP servers and the Unity CLI. Install as a git submodule at `.ai/`. MIT licensed, pre-release, single author, no other users yet.
 
 ## Docs
 
