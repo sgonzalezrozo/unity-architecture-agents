@@ -4,9 +4,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Unity Architecture Agents is a free, open-source `AGENTS.md` rule set for AI coding agents (Claude Code, Cursor, GitHub Copilot, Rider AI Assistant, Codex) on Unity 6 projects. It gives them a strict MVC architecture for uGUI, Roslyn analyzers that turn the rules into compile errors, and a verify loop that stops an agent from finishing with a broken build. It works with Unity MCP servers and the Unity CLI.
+Unity Architecture Agents is a free, open-source `AGENTS.md` and `CLAUDE.md` rule set for AI coding agents on Unity 6 projects. It gives agents a strict MVC architecture for uGUI, Roslyn analyzers that turn the rules into compile errors, a batch-mode verify script, and a Claude Code hook that won't let an agent finish with a broken build. Templates cover Cursor, GitHub Copilot and Rider AI Assistant, and the rules say how to verify work through Unity MCP or the Unity CLI.
 
-These are the rules I give coding agents such as Claude Code, Copilot and Rider's AI Assistant. They're written for machines: each rule has a stable ID and a MUST or MUST NOT, and it says whether a compiler analyzer or a code review enforces it. I use them in my personal Unity projects.
+These are the rules I give Claude Code, Copilot and Rider's AI Assistant in my personal Unity projects. They're written for machines: each rule has a stable ID and a MUST or MUST NOT, and it says whether a compiler analyzer or a code review enforces it.
 
 ## What's included
 
@@ -121,11 +121,11 @@ Give them rules they can't miss, and checks they can't skip. Add this repository
 
 ### Does it work with Claude Code, Cursor, Copilot and Rider?
 
-Yes. Claude Code and Codex read `AGENTS.md` or `CLAUDE.md`. Cursor, Copilot and Rider read the [templates](templates) you copy into their fixed paths.
+I use it with Claude Code, Copilot and Rider's AI Assistant. Claude Code reads `CLAUDE.md`, and Copilot and Rider read the [templates](templates) you copy into their fixed paths. Cursor and Codex read the same kind of files (a Cursor rule template and `AGENTS.md`), but I haven't tested them yet.
 
 ### Does it work with Unity MCP?
 
-Yes. With the Unity CLI (`unity mcp`) or MCP for Unity, the agent verifies through the open Editor and may build prefabs with editor tools. It still never writes prefab or scene YAML as text. See [Editor tools](architecture/EDITOR_TOOLS.md).
+It has rules for it, but they're not tested with a Unity MCP server yet. [Editor tools](architecture/EDITOR_TOOLS.md) tells an agent with the Unity CLI (`unity mcp`) or MCP for Unity to verify through the open Editor, and allows it to build prefabs with editor tools, never by writing prefab or scene YAML as text.
 
 ### Which architecture does it use?
 
@@ -139,9 +139,21 @@ No. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scr
 
 It's written and tested against Unity 6 (`6000.3`). The rules cover uGUI code, so the render pipeline doesn't matter.
 
+### How do I write an AGENTS.md or CLAUDE.md for a Unity project?
+
+Start from this repository instead of a blank file. Add it as the `.ai/` submodule, and keep a two-line root `AGENTS.md` and `CLAUDE.md` that point to it, as [Use it in a project](#use-it-in-a-project) shows. Put rules that only apply to one project in that project's root `AGENTS.md`.
+
+### Are there Cursor rules for Unity?
+
+Yes. Copy [`templates/cursor-rule.mdc`](templates/cursor-rule.mdc) to `.cursor/rules/`. It loads the full rule set from `.ai/AGENTS.md`.
+
 ### Is it free for commercial use?
 
 Yes. It's MIT licensed.
+
+### Does anyone else use it?
+
+Not yet. It's version `0.1.0` by a single author, used only in my personal projects so far, and the rules still change. Feedback and issues are very welcome.
 
 ### Is there a sample project?
 
