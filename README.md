@@ -4,6 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+Unity Architecture Agents is a free, open-source `AGENTS.md` rule set for AI coding agents (Claude Code, Cursor, GitHub Copilot, Rider AI Assistant, Codex) on Unity 6 projects. It gives them a strict MVC architecture for uGUI, Roslyn analyzers that turn the rules into compile errors, and a verify loop that stops an agent from finishing with a broken build. It works with Unity MCP servers and the Unity CLI.
+
 These are the rules I give coding agents such as Claude Code, Copilot and Rider's AI Assistant. They're written for machines: each rule has a stable ID and a MUST or MUST NOT, and it says whether a compiler analyzer or a code review enforces it. I use them in my personal Unity projects.
 
 ## What's included
@@ -20,8 +22,9 @@ These are the rules I give coding agents such as Claude Code, Copilot and Rider'
 | [UI patterns](architecture/UI_PATTERNS.md) | Clickable elements, visual states, tabs, lists and layouts |
 | [Optional packages](architecture/OPTIONAL_PACKAGES.md) | How an agent detects optional packages and adapts its code |
 | [C# standards](architecture/CSHARP_STANDARDS.md) | Style, performance, async, logging and tests |
+| [Editor tools](architecture/EDITOR_TOOLS.md) | How an agent verifies its work with Unity MCP, the Unity CLI or `verify.sh` |
 | [Examples](architecture/examples) | Three complete features with invented names: a backend feature, custom input and a filtered list |
-| [Templates](templates) | `.editorconfig`, Copilot instructions and a Rider AI Assistant rule |
+| [Templates](templates) | `.editorconfig`, Copilot, Cursor and Rider rules, `verify.sh` and a Claude Code Stop hook |
 | [Analyzers](analyzers) | Roslyn analyzers that turn the mechanical rules into compile errors |
 
 ## How the process scales
@@ -71,11 +74,32 @@ cp .ai/templates/.editorconfig .
 mkdir -p .github .aiassistant/rules
 cp .ai/templates/copilot-instructions.md .github/
 cp .ai/templates/rider-project-rule.md .aiassistant/rules/project.md
+mkdir -p .cursor/rules
+cp .ai/templates/cursor-rule.mdc .cursor/rules/unity-architecture.mdc
 ```
 
 Commit these copies in your project. In Rider, set the rule's type to **Always**.
 
 `.editorconfig` covers formatting, `var`, braces and naming in Rider and Visual Studio. It doesn't stop Unity from compiling.
+
+### Verify every change automatically
+
+An agent that can't check its work reports guesses. Copy the verify script and, for Claude Code, the Stop hook:
+
+```bash
+mkdir -p scripts .claude/hooks
+cp .ai/templates/scripts/verify.sh scripts/
+cp .ai/templates/claude/hooks/verify-on-stop.sh .claude/hooks/
+cp .ai/templates/claude/settings.json .claude/
+```
+
+`scripts/verify.sh` compiles the project in batch mode, runs the EditMode tests and checks Fast IoC code generation. It fails on compiler and analyzer errors, and writes `Logs/verify/summary.json` for agents and CI. Exit codes: `0` passed, `1` failed, `2` couldn't run.
+
+When Claude Code finishes, the hook runs `verify.sh` if `Assets`, `Packages` or `ProjectSettings` changed, and sends failures back to the agent. It gives up after three attempts in a row. Close the project in the Editor while the agent works, or the hook can't check anything.
+
+### Unity MCP and the Unity CLI
+
+With a Unity MCP server, such as the Unity CLI's `unity mcp` mode or [MCP for Unity](https://github.com/CoplayDev/unity-mcp), the agent reads the Console, runs tests and builds prefabs through the open Editor instead. [Editor tools](architecture/EDITOR_TOOLS.md) says which tool checks what, and what an agent may do through a bridge.
 
 ### Updating
 
@@ -88,6 +112,40 @@ git submodule update --remote .ai
 ## Project status
 
 This is version `0.1.0`. The architecture and the code style are mandatory. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller), [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) and [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) are optional: agents detect them, and use plain Unity forms when they're missing.
+
+## FAQ
+
+### How do I make AI coding agents follow an architecture in Unity?
+
+Give them rules they can't miss, and checks they can't skip. Add this repository as `.ai/`, point `AGENTS.md` and `CLAUDE.md` at it, install the [analyzers](analyzers), and add the [verify loop](#verify-every-change-automatically). Instructions guide the agent, and the compiler enforces the mechanical rules.
+
+### Does it work with Claude Code, Cursor, Copilot and Rider?
+
+Yes. Claude Code and Codex read `AGENTS.md` or `CLAUDE.md`. Cursor, Copilot and Rider read the [templates](templates) you copy into their fixed paths.
+
+### Does it work with Unity MCP?
+
+Yes. With the Unity CLI (`unity mcp`) or MCP for Unity, the agent verifies through the open Editor and may build prefabs with editor tools. It still never writes prefab or scene YAML as text. See [Editor tools](architecture/EDITOR_TOOLS.md).
+
+### Which architecture does it use?
+
+Strict MVC for uGUI: Models own state, Views render, Controllers receive input, and state flows by pull through parameterless events. No `Button`, `Toggle` or `Slider`, because each is a View and a Controller in one. ECS gameplay is out of scope.
+
+### Do I need Fast IoC or the other packages?
+
+No. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller), [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) and [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) are optional. Agents detect them in `Packages/manifest.json` and use plain Unity forms when they're missing.
+
+### Does it work with Unity 6, URP and HDRP?
+
+It's written and tested against Unity 6 (`6000.3`). The rules cover uGUI code, so the render pipeline doesn't matter.
+
+### Is it free for commercial use?
+
+Yes. It's MIT licensed.
+
+### Is there a sample project?
+
+[Unity Architecture Agents Sample](https://github.com/sgonzalezrozo/unity-architecture-agents-sample) runs agents against the real packages, with the verify hook installed.
 
 ## Changelog
 

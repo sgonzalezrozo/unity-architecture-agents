@@ -7,6 +7,10 @@ All notable changes to this project are documented in this file.
 ### Added
 
 - Roslyn analyzers for the mechanical rules in the checklist.
+- `UA0013` (serialized Model field) and `UA0014` (Model dependency cycle).
+- `EDITOR_TOOLS.md`, with `EDIT` rules for verifying with Unity MCP, the Unity CLI or `verify.sh`, and checklist item 14.
+- Templates for `verify.sh`, a Claude Code Stop hook and a Cursor rule. `verify.sh` fails on analyzer errors and failed Fast IoC generation, finds Unity on macOS, Linux and Windows, and writes `Logs/verify/summary.json`.
+- An FAQ and `llms.txt`.
 - `OPTIONAL_PACKAGES.md`, with capability detection, and list and navigation forms for projects without the packages.
 - Stable rule IDs, RFC 2119 keywords and the enforcement of each invariant.
 - A scope: the architecture rules cover client code, except ECS gameplay, packages and tools.
@@ -19,6 +23,7 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- With an editor bridge, an agent may build prefabs through editor tools. The handoff table becomes its spec.
 - **Breaking:** Tests for Model behavior are written first, and `MODEL-03` separates reachable conditions from bugs.
 - **Breaking:** Fast IoC, Recyclable Scroller, Screen System and UI Foundations are optional. The architecture and code style stay mandatory.
 - Models and Views sit on their scope root, and a Model moves up only when shared. Injection is the exception, for Models with no common parent or that persist. Without a container, those Models are singletons.

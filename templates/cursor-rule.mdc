@@ -1,0 +1,16 @@
+---
+description: Unity architecture rules for this project
+alwaysApply: true
+---
+
+All project rules live in `.ai/AGENTS.md`. Read it before suggesting code, then open the document it points to for your task.
+
+Non-negotiable, in case nothing else is loaded:
+
+- Strict MVC: Models know only Models. Views know only Models and rendering components. Controllers know only Models and input interfaces.
+- Events are `public event Action OnSomethingChanged;` with no parameters. Listeners pull from the Model.
+- No `Button`, `Toggle`, `Slider` or `Dropdown`. Controllers implement `IPointer*` interfaces.
+- Packages are optional. Before generating code, run capability detection from `.ai/architecture/OPTIONAL_PACKAGES.md`.
+- Models have no serialized fields and form no cycles. Add no abstraction without a second use or a test need.
+- Never write `.prefab`, `.unity`, `.asset` or `.meta` files as text. With a Unity MCP server or the Unity CLI, build them through editor tools.
+- A change is verified only by a tool: the Console through Unity MCP, or `scripts/verify.sh`. Report anything else as not verified. See `.ai/architecture/EDITOR_TOOLS.md`.

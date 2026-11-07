@@ -2,7 +2,7 @@
 
 **Load when:** starting any task.
 
-Match the process to the task size. Run [capability detection](OPTIONAL_PACKAGES.md#capability-detection) before generating UI code.
+Match the process to the task size. Run [capability detection](OPTIONAL_PACKAGES.md#capability-detection) before generating UI code, and [editor tool detection](EDITOR_TOOLS.md#capability-detection) before verifying.
 
 ## Task classification
 
@@ -25,7 +25,7 @@ Model location: screen root, or Fast IoC scene "PlayerStats", priority 200
 Scopes: PlayerStats root, PlayerStats/ActionButtons
 Tests: PlayerStatsModelTests
 New dependencies: none
-Capabilities: fastIoC, recyclableScroller, screenSystem, uiFoundations
+Capabilities: fastIoC, recyclableScroller, screenSystem, uiFoundations, editorBridge, verifyScript
 Open questions: list
 ```
 
@@ -59,7 +59,8 @@ Agent output varies between runs. A deterministic tool gives the same result eve
 
 ## Working in Unity
 
-- Do not hand-edit `.prefab`, `.unity`, `.asset` or `.meta` files. Describe the hierarchy with the [notation](FEATURE_STRUCTURE.md#screen-composition), plus the Inspector steps for the developer.
+- Do not hand-edit `.prefab`, `.unity`, `.asset` or `.meta` files (`EDIT-06`). Describe the hierarchy with the [notation](FEATURE_STRUCTURE.md#screen-composition), plus the Inspector steps for the developer. With an editor bridge, you MAY also build it through editor tools (`EDIT-05`).
+- Verify with the tools in [Editor tools](EDITOR_TOOLS.md), in its [verification order](EDITOR_TOOLS.md#verification-order).
 - Unity generates `.meta` files. A moved file must move with its `.meta`.
 - Do not change generated code or external packages.
 - Never rename serialized fields without `[FormerlySerializedAs]`.
@@ -83,10 +84,11 @@ Run this before returning code. Item numbers are stable: the [analyzers](../anal
 11. Is each Model and View on its scope root? Does any View render outside its scope?
 12. Do Model dependencies form a cycle? Does any Model have a serialized field?
 13. Is this the minimum that finishes the need, with no unused abstraction and nothing loaded before it's needed?
+14. Did a tool verify the compile, analyzers, tests and generation status (`EDIT-01`)? Is anything reported as verified that no tool checked?
 
 ## Prefab handoff
 
-An agent can't build a prefab, so a person does it from the agent's instructions. They MUST leave nothing to guess.
+Without an [editor bridge](EDITOR_TOOLS.md#capability-detection), an agent can't build a prefab, so a person does it from the agent's instructions. With one, the agent builds it, and the table is the spec it checks the result against (`EDIT-05`). Either way, the instructions MUST leave nothing to guess.
 
 | ID | Rule |
 |---|---|
@@ -112,7 +114,7 @@ State what changed, which tool verified it, and what wasn't verified. If you cou
 **Every change**
 
 - [ ] Follows `AGENTS.md` and the checklist above
-- [ ] Compiles with no new warnings
+- [ ] Compiles with no new warnings or analyzer errors, checked by a tool (`EDIT-02`)
 - [ ] Existing tests pass, and everything that can be unit tested has tests
 - [ ] A bug fix includes a test that fails without the fix
 - [ ] No unused code, no debug logs

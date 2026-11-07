@@ -11,3 +11,4 @@ Non-negotiable, in case nothing else is loaded:
 - ECS gameplay is out of scope. A scope is one root GameObject, and a feature can hold several. Models and Views sit on the scope root. A Model moves up only when shared, and Views render only inside their scope.
 - Models have no serialized fields and form no cycles. Add no abstraction without a second use or a test need. Load nothing before it's needed.
 - Views and Controllers cache Models with `GetComponentInParent`. Only a Model with no common parent, or one that persists, is injected through an `internal` field. Without a container, it is a singleton. Pure C# classes use the constructor.
+- Never write `.prefab`, `.unity`, `.asset` or `.meta` files as text. A change is verified only by a tool (Unity MCP, the Unity CLI or `scripts/verify.sh`). See `.ai/architecture/EDITOR_TOOLS.md`.

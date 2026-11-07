@@ -1,0 +1,23 @@
+# Unity Architecture Agents
+
+> AGENTS.md rule set for AI coding agents (Claude Code, Cursor, GitHub Copilot, Rider AI Assistant, Codex) on Unity 6 projects. Strict MVC for uGUI with stable rule IDs and RFC 2119 keywords, Roslyn analyzers (UA0001-UA0014) that turn mechanical rules into compile errors, and a verify loop (scripts/verify.sh plus a Claude Code Stop hook) that stops an agent from finishing with a broken build. Works with Unity MCP servers and the Unity CLI. Install as a git submodule at `.ai/`. MIT licensed, pre-release.
+
+## Docs
+
+- [README](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/README.md): installation, templates, verify loop, FAQ
+- [AGENTS.md](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/AGENTS.md): entry point, architecture invariants, document routing
+- [Agent workflow](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/architecture/AGENT_WORKFLOW.md): task classification, plan, checklist, Definition of Done
+- [Editor tools](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/architecture/EDITOR_TOOLS.md): verification with Unity MCP, the Unity CLI or verify.sh
+- [MVC](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/architecture/MVC.md): Models, Views, Controllers, where a Model lives
+- [Analyzers](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/analyzers/README.md): Roslyn rules and installation
+
+## Examples
+
+- [Backend feature](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/architecture/examples/01_BACKEND_FEATURE_TROPHY_ROOM.md)
+- [Custom input](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/architecture/examples/02_CUSTOM_INPUT_SETTINGS.md)
+- [Filtered list](https://github.com/sgonzalezrozo/unity-architecture-agents/blob/main/architecture/examples/03_FILTERED_LIST_INVENTORY.md)
+
+## Optional
+
+- [Sample project](https://github.com/sgonzalezrozo/unity-architecture-agents-sample)
+- [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller), [Screen System](https://github.com/sgonzalezrozo/unity-screen-system), [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations)

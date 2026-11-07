@@ -21,7 +21,7 @@ The architecture rules cover all client code except gameplay simulation, which i
 | Unity, C#, uGUI, TextMeshPro | Required runtime |
 | Fast IoC, Recyclable Scroller, Screen System, UI Foundations, Addressables | **Optional.** They change the implementation, never the architecture |
 
-Run [capability detection](architecture/OPTIONAL_PACKAGES.md#capability-detection) before generating code.
+Run [capability detection](architecture/OPTIONAL_PACKAGES.md#capability-detection) before generating code, and [editor tool detection](architecture/EDITOR_TOOLS.md#capability-detection) before verifying it.
 
 ## Architecture invariants
 
@@ -57,6 +57,7 @@ Input event → Controller → Model command → state change → parameterless 
 | Backend calls | [Backend integration](architecture/BACKEND_INTEGRATION.md) |
 | C# style, performance, async, logging, tests | [C# standards](architecture/CSHARP_STANDARDS.md) |
 | Task process, checklist, Definition of Done, Git | [Agent workflow](architecture/AGENT_WORKFLOW.md) |
+| Verifying a change, Unity MCP or Unity CLI tools, `verify.sh` | [Editor tools](architecture/EDITOR_TOOLS.md) |
 
 Read the closest example before generating a feature:
 
@@ -68,7 +69,7 @@ Read the closest example before generating a feature:
 
 ## Completion
 
-A task is complete only when it passes the [pre-response checklist](architecture/AGENT_WORKFLOW.md#pre-response-checklist) and the [Definition of Done](architecture/AGENT_WORKFLOW.md#definition-of-done). Report what was verified and what wasn't.
+A task is complete only when it passes the [pre-response checklist](architecture/AGENT_WORKFLOW.md#pre-response-checklist) and the [Definition of Done](architecture/AGENT_WORKFLOW.md#definition-of-done). Report what each tool verified and what wasn't verified ([Editor tools](architecture/EDITOR_TOOLS.md#reporting-back)).
 
 ## API policy
 
