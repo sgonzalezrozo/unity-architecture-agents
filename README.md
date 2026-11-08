@@ -6,8 +6,6 @@
 
 Unity Architecture Agents is a free, open-source `AGENTS.md` and `CLAUDE.md` rule set for AI coding agents on Unity 6 projects. It gives agents a strict MVC architecture for uGUI, Roslyn analyzers that turn the rules into compile errors, a batch-mode verify script, and a Claude Code hook that won't let an agent finish with a broken build. Templates cover Cursor, GitHub Copilot and Rider AI Assistant. It works with Unity MCP servers and the Unity CLI.
 
-These are the rules I give Claude Code, Copilot and Rider's AI Assistant in my personal Unity projects. They're written for machines: each rule has a stable ID and a MUST or MUST NOT, and it says whether a compiler analyzer or a code review enforces it.
-
 ## What's included
 
 | File | Purpose |
