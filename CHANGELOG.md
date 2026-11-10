@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-10
+
 ### Added
 
 - Roslyn analyzers for the mechanical rules in the checklist.
@@ -38,6 +40,10 @@ All notable changes to this project are documented in this file.
 - `ViewStateMachine.SetState` replaces `SetActiveState`, which doesn't exist.
 - Lists use a concrete `RecyclableScrollRect<T>` subclass and the real `IRecyclableDataSource<T>` members.
 - `MonoInstaller` takes scene names, not a subscene.
+
+### Documentation
+
+- Removed links to packages and the sample project, which aren't published yet.
 
 ## [0.1.0] - 2026-11-05
 

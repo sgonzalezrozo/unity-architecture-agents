@@ -19,5 +19,4 @@
 
 ## Optional
 
-- [Sample project](https://github.com/sgonzalezrozo/unity-architecture-agents-sample)
-- [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller), [Screen System](https://github.com/sgonzalezrozo/unity-screen-system), [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations)
+- [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), Recyclable Scroller, Screen System (not published yet), [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations)

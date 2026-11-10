@@ -109,7 +109,7 @@ git submodule update --remote .ai
 
 ## Project status
 
-This is version `0.1.0`. The architecture and the code style are mandatory. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller), [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) and [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) are optional: agents detect them, and use plain Unity forms when they're missing.
+This is version `0.2.0`. The architecture and the code style are mandatory. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), Recyclable Scroller, Screen System and [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) are optional: agents detect them, and use plain Unity forms when they're missing. Recyclable Scroller and Screen System aren't published yet.
 
 ## FAQ
 
@@ -131,7 +131,7 @@ Strict MVC for uGUI: Models own state, Views render, Controllers receive input, 
 
 ### Do I need Fast IoC or the other packages?
 
-No. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), [Recyclable Scroller](https://github.com/sgonzalezrozo/unity-recyclable-scroller), [Screen System](https://github.com/sgonzalezrozo/unity-screen-system) and [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) are optional. Agents detect them in `Packages/manifest.json` and use plain Unity forms when they're missing.
+No. [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), Recyclable Scroller, Screen System and [UI Foundations](https://github.com/sgonzalezrozo/unity-ui-foundations) are optional. Agents detect them in `Packages/manifest.json` and use plain Unity forms when they're missing.
 
 ### Does it work with Unity 6, URP and HDRP?
 
@@ -151,11 +151,15 @@ Yes. It's MIT licensed.
 
 ### Does anyone else use it?
 
-Not yet. It's version `0.1.0` by a single author, used only in my personal projects so far, and the rules still change. Feedback and issues are very welcome.
+Not yet. It's version `0.2.0` by a single author, used only in my personal projects so far, and the rules still change. Feedback and issues are very welcome.
 
 ### Is there a sample project?
 
-[Unity Architecture Agents Sample](https://github.com/sgonzalezrozo/unity-architecture-agents-sample) runs agents against the real packages, with the verify hook installed.
+Not yet. A sample project that runs agents against the real packages, with the verify hook installed, will be published once it follows the current rules.
+
+## Contributing
+
+Bug reports, rule fixes and pull requests are welcome. Please open an issue before starting a large change. See the [contributing guide](.github/CONTRIBUTING.md) and [security policy](.github/SECURITY.md).
 
 ## Changelog
 
